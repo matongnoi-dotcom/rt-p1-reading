@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบทดสอบการอ่านออกเสียง ป.1 — 20 ชุด 4 ระดับความยาก</title>
+  <meta name="description" content="ระบบทดสอบและฝึกฝนการอ่านออกเสียงคำศัพท์พื้นฐาน ป.1 ออนไลน์ 20 ชุด (ชุดละ 15 คำ) แบ่ง 4 ระดับความยาก พร้อมระบบฟังเสียงไมโครโฟนและบันทึกคะแนนลง Google Sheets">
+  <!-- ไอคอนประจำแท็บเบราว์เซอร์ (SVG Favicon) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23F97316'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='60'>🎤</text></svg>">
+
+  <!-- Google Fonts: Mali (หัวข้อน่ารักสำหรับเด็ก ป.1) + Sarabun & Prompt (อักษรมีหัวชัดเจน อ่านง่าย) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700&family=Prompt:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            mali: ['Mali', 'Prompt', 'sans-serif'],
+            prompt: ['Prompt', 'sans-serif'],
+            sarabun: ['Sarabun', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      font-size: 20px;
+      background: linear-gradient(135deg, #FFF7D6 0%, #FFE4EC 35%, #DCF4FF 72%, #E0FBE2 100%);
+      background-size: 200% 200%;
+      animation: bgShift 16s ease infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Mali', 'Prompt', sans-serif;
+    }
+
+    .font-ui {
+      font-family: 'Prompt', sans-serif;
+    }
+
+    /* ปุ่มสไตล์ 3D กดสนุกสำหรับเด็ก ป.1 */
+    .btn-3d {
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+    }
+    .btn-3d:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+    .btn-3d:active:not(:disabled) {
+      transform: translateY(3px);
+      border-bottom-width: 1px !important;
+    }
+
+    /* การ์ดเลือกเพศ */
+    .gender-card {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-width: 3px;
+      border-bottom-width: 6px;
+    }
+    .gender-card:hover {
+      transform: translateY(-4px) scale(1.02);
+    }
+    .gender-card.selected-male {
+      background: linear-gradient(180deg, #E0F2FE 0%, #BAE6FD 100%);
+      border-color: #0284C7;
+      box-shadow: 0 12px 24px -6px rgba(2, 132, 199, 0.4);
+    }
+    .gender-card.selected-female {
+      background: linear-gradient(180deg, #FFE4E6 0%, #FECDD3 100%);
+      border-color: #E11D48;
+      box-shadow: 0 12px 24px -6px rgba(225, 29, 72, 0.4);
+    }
+
+    /* แอนิเมชันลูกเล่นภาพขยับได้ */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1.5deg); }
+    }
+    .animate-float {
+      animation: floatSlow 3.4s ease-in-out infinite;
+    }
+
+    @keyframes wingFlap {
+      0%, 100% { transform: rotate(0deg) scaleY(1); }
+      50% { transform: rotate(-14deg) scaleY(0.86); }
+    }
+    .svg-wing-left {
+      transform-box: fill-box;
+      transform-origin: 85% 60%;
+      animation: wingFlap 0.85s ease-in-out infinite;
+    }
+    @keyframes wingFlapRight {
+      0%, 100% { transform: rotate(0deg) scaleY(1); }
+      50% { transform: rotate(14deg) scaleY(0.86); }
+    }
+    .svg-wing-right {
+      transform-box: fill-box;
+      transform-origin: 15% 60%;
+      animation: wingFlapRight 0.85s ease-in-out infinite;
+    }
+
+    @keyframes flameFlicker {
+      0%, 100% { transform: scale(1) skewX(0deg); opacity: 0.95; }
+      35% { transform: scale(1.14, 0.92) skewX(-5deg); opacity: 1; }
+      70% { transform: scale(0.95, 1.12) skewX(5deg); opacity: 0.85; }
+    }
+    .svg-flame {
+      transform-box: fill-box;
+      transform-origin: 0% 50%;
+      animation: flameFlicker 0.45s ease-in-out infinite;
+    }
+
+    @keyframes sparkleTwinkle {
+      0%, 100% { opacity: 0.35; transform: scale(0.8) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.25) rotate(18deg); }
+    }
+    .animate-sparkle {
+      animation: sparkleTwinkle 2.2s ease-in-out infinite;
+    }
+
+    @keyframes wordPopIn {
+      0% { opacity: 0; transform: scale(0.82) translateY(10px); }
+      65% { opacity: 1; transform: scale(1.04) translateY(-2px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .word-pop {
+      animation: wordPopIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes mascotCelebrate {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-16px) scale(1.12) rotate(-5deg); }
+      60% { transform: translateY(-8px) scale(1.06) rotate(5deg); }
+    }
+    .mascot-cheer {
+      animation: mascotCelebrate 0.65s ease;
+    }
+
+    /* คลื่นเสียงขณะไมโครโฟนกำลังฟัง */
+    @keyframes eqBounce {
+      0%, 100% { height: 6px; }
+      50% { height: 22px; }
+    }
+    .eq-bar {
+      width: 4px;
+      border-radius: 999px;
+      background: #FFFFFF;
+      animation: eqBounce 0.55s ease-in-out infinite;
+    }
+
+    /* แอนิเมชันไมโครโฟนกำลังฟัง */
+    @keyframes pulseMic {
+      0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.65); transform: scale(1); }
+      70% { box-shadow: 0 0 0 18px rgba(244, 63, 94, 0); transform: scale(1.04); }
+      100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); transform: scale(1); }
+    }
+    .mic-listening {
+      animation: pulseMic 1.1s infinite;
+      background: linear-gradient(135deg, #E11D48 0%, #F97316 100%) !important;
+      border-color: #9F1239 !important;
+      color: #FFFFFF !important;
+    }
+
+    /* แถบจุดแสดงข้อ 1-15 */
+    .nav-pill {
+      transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+      border-width: 2px;
+    }
+    .nav-pill-active {
+      background: linear-gradient(135deg, #0EA5E9 0%, #6366F1 100%);
+      border-color: #3730A3;
+      color: #FFFFFF;
+      transform: scale(1.16);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45);
+    }
+    .nav-pill-pass {
+      background-color: #DCFCE7;
+      border-color: #16A34A;
+      color: #15803D;
+    }
+    .nav-pill-fail {
+      background-color: #FFE4E6;
+      border-color: #E11D48;
+      color: #BE123C;
+    }
+    .nav-pill-idle {
+      background-color: #FFFFFF;
+      border-color: #CBD5E1;
+      color: #64748B;
+    }
+
+    /* พลุกระดาษฉลอง */
+    .confetti-piece {
+      position: fixed;
+      top: -20px;
+      z-index: 60;
+      pointer-events: none;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      85% { opacity: 1; }
+      100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.28s ease-out forwards;
+    }
+
+    /* จัดหน้าสำหรับพิมพ์ A4 */
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      body { background: #FFFFFF !important; animation: none !important; font-size: 13pt !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .print-break-inside-avoid { break-inside: avoid; }
+      .print-clean { box-shadow: none !important; border: 1px solid #CBD5E1 !important; }
+    }
+    .print-only { display: none; }
+  </style>
+</head>
+<body class="text-slate-800 selection:bg-amber-200 relative">
+
+  <!-- ลูกเล่นพื้นหลังลอยไปมา (ไม่รบกวนการกด) -->
+  <div class="no-print fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+    <div class="absolute top-12 left-[6%] text-4xl opacity-40 animate-float" style="animation-delay:0s;">☁️</div>
+    <div class="absolute top-28 right-[8%] text-3xl opacity-45 animate-sparkle" style="animation-delay:0.6s;">✨</div>
+    <div class="absolute bottom-24 left-[5%] text-3xl opacity-35 animate-sparkle" style="animation-delay:1.2s;">⭐</div>
+    <div class="absolute bottom-16 right-[7%] text-4xl opacity-35 animate-float" style="animation-delay:1.8s;">☁️</div>
+  </div>
+
+  <div class="relative z-10 max-w-4xl mx-auto px-4 py-4 sm:py-6 flex flex-col min-h-screen">
+
+    <!-- ==================== แถบด้านบน (HEADER) ==================== -->
+    <header class="no-print bg-white/95 backdrop-blur rounded-3xl p-3.5 sm:p-4 shadow-lg border-2 border-amber-300/80 mb-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- โลโก้ -->
+        <div class="flex items-center gap-3 cursor-pointer group" onclick="handleLogoClick()">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-white flex items-center justify-center text-2xl shadow-md border-b-4 border-rose-700 shrink-0 group-hover:scale-105 transition">
+            🎤
+          </div>
+          <div>
+            <h1 class="font-heading font-bold text-lg sm:text-xl bg-gradient-to-r from-orange-600 via-rose-600 to-purple-600 bg-clip-text text-transparent leading-tight">
+              พิชิตการอ่านออกเสียง ป.1
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-ui">ภารกิจ 20 ชุด (ชุดละ 15 คำ) • 4 ระดับความท้าทาย</p>
+          </div>
+        </div>
+
+        <!-- ปุ่มเสียงเอฟเฟกต์ + ตั้งค่า Google Sheets + ข้อมูลนักเรียน -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="sfxToggleBtn" onclick="toggleSfx()" title="เปิด/ปิดเสียงเอฟเฟกต์"
+            class="btn-3d inline-flex items-center gap-1 bg-violet-100 hover:bg-violet-200 text-violet-900 border-2 border-violet-300 border-b-4 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl">
+            <span id="sfxToggleIcon">🔔</span>
+            <span class="hidden sm:inline" id="sfxToggleLabel">เสียงเอฟเฟกต์</span>
+          </button>
+
+          <button id="teacherSheetBtn" onclick="openSheetSettingsModal()" title="ตั้งค่าเชื่อมต่อ Google Sheets (สำหรับครู)"
+            class="btn-3d inline-flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-2 border-emerald-300 border-b-4 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl">
+            <span>⚙️</span>
+            <span class="hidden sm:inline">ครู</span>
+            <span id="sheetStatusDot" class="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span>
+          </button>
+
+          <div id="headerControls" class="hidden flex flex-wrap items-center gap-2">
+            <div id="headerUserBadge" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 border-2 border-amber-300 text-amber-950 font-heading font-bold text-sm sm:text-base px-3.5 py-1.5 rounded-2xl shadow-sm"></div>
+            <button onclick="openHistoryScreen()" class="btn-3d inline-flex items-center gap-1.5 bg-sky-100 hover:bg-sky-200 text-sky-900 border-2 border-sky-300 border-b-4 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl">
+              <span>📋</span>
+              <span class="hidden sm:inline">ประวัติ</span>
+            </button>
+            <button onclick="openLoginScreen(true)" class="btn-3d inline-flex items-center gap-1 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-300 border-b-4 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl">
+              <span>🔄</span>
+              <span class="hidden sm:inline">เปลี่ยนชื่อ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- แถบความคืบหน้าระหว่างทำแบบทดสอบ -->
+      <div id="examProgressWrap" class="hidden mt-3.5 pt-3 border-t-2 border-dashed border-amber-200 flex flex-wrap items-center gap-3">
+        <button onclick="goHome()" class="btn-3d text-sm font-heading font-bold text-slate-700 bg-slate-100 hover:bg-sky-50 px-3 py-1.5 rounded-2xl border-2 border-slate-300 border-b-4">
+          🏠 เลือกชุด
+        </button>
+        <span id="examModeTitle" class="font-heading font-bold text-sm sm:text-base text-slate-800"></span>
+        <div class="flex-1 min-w-[130px] flex items-center gap-2">
+          <span id="examProgressText" class="font-heading font-bold text-indigo-700 text-sm whitespace-nowrap"></span>
+          <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden border-2 border-slate-200 p-0.5">
+            <div id="examProgressBar" class="h-full bg-gradient-to-r from-amber-400 via-rose-400 to-emerald-400 rounded-full transition-all duration-300" style="width: 7%;"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 1. หน้าลงชื่อเข้าใช้งาน (LOGIN SCREEN) ==================== -->
+    <main id="loginScreen" class="flex-1 flex items-center justify-center py-2 animate-fade-in">
+      <div class="w-full max-w-lg bg-white/95 backdrop-blur rounded-[2rem] p-6 sm:p-8 shadow-xl border-4 border-amber-300 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-emerald-400 via-sky-400 via-amber-400 to-rose-500"></div>
+
+        <div class="text-center mb-6 pt-2">
+          <div id="loginHeroMascot" class="w-28 h-28 mx-auto mb-3 rounded-3xl bg-gradient-to-br from-sky-100 via-amber-50 to-rose-100 border-2 border-amber-300 flex items-center justify-center shadow-md animate-float">
+          </div>
+          <h2 class="font-heading font-bold text-2xl sm:text-3xl bg-gradient-to-r from-orange-600 via-rose-600 to-indigo-600 bg-clip-text text-transparent mb-1.5">
+            สวัสดีจ้านักอ่านตัวน้อย!
+          </h2>
+          <p class="text-slate-600 text-base sm:text-lg font-ui">
+            พร้อมออกผจญภัยพิชิต 4 ระดับความท้าทายหรือยัง?
+          </p>
+          <!-- แถบโชว์ 4 ระดับยั่วใจ -->
+          <div class="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+            <span class="text-xs font-heading font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">🐦 นกกระจอก</span>
+            <span class="text-xs font-heading font-bold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 border border-sky-300">🕊️ นกพิราบ</span>
+            <span class="text-xs font-heading font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">🦅 นกอินทรี</span>
+            <span class="text-xs font-heading font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-300">🔥 มังกรไฟ</span>
+          </div>
+          <button type="button" onclick="playSfx('pop'); speakInstruction('สวัสดีจ้าน้อง ปอ หนึ่ง กดเลือกรูปผู้ชาย หรือผู้หญิง แล้วพิมพ์ชื่อของหนู เพื่อเริ่มภารกิจฝึกอ่านออกเสียงสี่ระดับความท้าทายได้เลยนะจ๊ะ')"
+            class="mt-3.5 btn-3d inline-flex items-center gap-2 bg-sky-100 hover:bg-sky-200 text-sky-900 border-2 border-sky-300 border-b-4 font-heading font-bold text-sm px-4 py-1.5 rounded-full">
+            <span>🔊</span>
+            <span>ฟังเสียงแนะนำ</span>
+          </button>
+        </div>
+
+        <div class="mb-6">
+          <label class="block font-heading font-bold text-slate-700 text-lg mb-3 text-center">
+            1. เลือกเพศของหนู
+          </label>
+          <div class="grid grid-cols-2 gap-4">
+            <button type="button" id="btnGenderMale" onclick="selectGender('male')"
+              class="gender-card rounded-3xl p-5 bg-white border-sky-200 flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="text-5xl">👦</span>
+              <span class="font-heading font-bold text-xl text-sky-900">ชาย</span>
+            </button>
+            <button type="button" id="btnGenderFemale" onclick="selectGender('female')"
+              class="gender-card rounded-3xl p-5 bg-white border-rose-200 flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="text-5xl">👧</span>
+              <span class="font-heading font-bold text-xl text-rose-900">หญิง</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label for="studentNameInput" class="block font-heading font-bold text-slate-700 text-lg mb-2 text-center">
+            2. พิมพ์ชื่อของหนู
+          </label>
+          <input id="studentNameInput" type="text" maxlength="40" autocomplete="off"
+            placeholder="เช่น น้องมะลิ, ต้นกล้า..."
+            class="w-full text-center text-xl font-heading font-bold bg-amber-50/50 border-2 border-amber-300 focus:border-sky-500 focus:bg-white focus:outline-none rounded-2xl py-3.5 px-4 transition">
+          <p id="loginErrorMsg" class="hidden text-center text-rose-600 text-sm font-ui font-medium mt-2"></p>
+        </div>
+
+        <button type="button" onclick="submitLogin()"
+          class="btn-3d w-full bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white border-b-4 border-rose-800 font-heading font-bold text-xl py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2">
+          <span>เริ่มออกผจญภัยฝึกอ่านกันเลย!</span>
+          <span>🚀</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- ==================== 2. หน้าหลักเลือกชุดและระดับความยาก 4 ระดับ (HOME SCREEN) ==================== -->
+    <main id="homeScreen" class="hidden flex-1 flex flex-col gap-5 animate-fade-in">
+      <!-- แบนเนอร์ทักทายสีสันสดใส -->
+      <section class="relative overflow-hidden bg-gradient-to-r from-indigo-500 via-sky-500 to-teal-400 text-white border-2 border-sky-300 rounded-[2rem] p-5 sm:p-6 shadow-lg flex flex-wrap items-center justify-between gap-4">
+        <div class="relative z-10 flex-1 min-w-[230px]">
+          <span class="inline-block bg-white/25 backdrop-blur text-white font-heading font-bold text-xs sm:text-sm px-3 py-1 rounded-full mb-2">
+            🏆 ภารกิจพิชิต 20 ด่านอ่านออกเสียง ป.1
+          </span>
+          <h2 id="homeWelcomeTitle" class="font-heading font-bold text-2xl sm:text-3xl text-white drop-shadow-sm mb-1.5"></h2>
+          <p class="text-sky-50 text-base sm:text-lg mb-3">
+            พิชิตให้ครบทั้ง <strong>4 ระดับ</strong> ตั้งแต่นกกระจอกจนถึงเจ้าแห่งมังกรไฟ!
+          </p>
+          <!-- แถบความก้าวหน้ารวม 20 ชุด -->
+          <div class="max-w-md">
+            <div class="flex justify-between text-xs sm:text-sm font-heading font-bold text-amber-100 mb-1">
+              <span>ความคืบหน้าภารกิจรวม</span>
+              <span id="homeOverallPctText">0 / 20 ชุด (0%)</span>
+            </div>
+            <div class="w-full h-3.5 bg-white/25 rounded-full overflow-hidden border border-white/40">
+              <div id="homeOverallBar" class="h-full bg-gradient-to-r from-amber-300 via-yellow-300 to-emerald-300 rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="relative z-10 flex flex-col items-center gap-2 shrink-0">
+          <div id="homeHeroMascot" class="w-24 h-24 rounded-3xl bg-white/20 backdrop-blur border-2 border-white/40 flex items-center justify-center animate-float shadow-md"></div>
+          <button onclick="playSfx('pop'); speakInstruction('เลือกด่านฝึกอ่านออกเสียงด้านล่างได้เลยนะจ๊ะ มีทั้งหมดสี่ระดับความท้าทาย เริ่มจากนกกระจอก นกพิราบ นกอินทรี ไปจนถึงมังกรไฟ ชุดละสิบห้าคำจ้า')"
+            class="btn-3d bg-amber-300 hover:bg-amber-400 text-amber-950 border-2 border-amber-200 border-b-4 border-b-amber-600 font-heading font-bold text-sm px-4 py-2 rounded-2xl flex items-center gap-1.5 shadow">
+            <span>🔊</span>
+            <span>ฟังคำชี้แจง</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ตารางเลือกชุดคำศัพท์ 20 ชุด แยก 4 ระดับความยาก -->
+      <section class="bg-white/95 backdrop-blur rounded-[2rem] p-5 sm:p-6 shadow-lg border-2 border-amber-200">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h3 class="font-heading font-bold text-xl sm:text-2xl text-slate-800 flex items-center gap-2">
+              <span>🗺️</span> แผนที่ด่านทดสอบทั้ง 4 ระดับ (20 ชุด)
+            </h3>
+            <p class="text-slate-500 text-sm sm:text-base font-ui">เลือกด่านที่อยากท้าทายได้เลย แต่ละชุดมีคำศัพท์พื้นฐาน 15 คำ</p>
+          </div>
+          <span id="wordSetsDoneBadge" class="bg-gradient-to-r from-amber-100 to-orange-100 text-orange-900 border-2 border-orange-300 font-heading font-bold text-sm px-4 py-1.5 rounded-full shadow-sm">
+            ทำแล้ว 0 / 20 ชุด
+          </span>
+        </div>
+
+        <div id="wordSetsGrid" class="space-y-5"></div>
+      </section>
+    </main>
+
+    <!-- ==================== 3. หน้าทดสอบการอ่านออกเสียง (READ ALOUD SCREEN) ==================== -->
+    <main id="aloudScreen" class="hidden flex-1 flex flex-col gap-4 animate-fade-in">
+      <!-- แถบเลือกชุดและฟังคำชี้แจง -->
+      <div class="bg-white/95 backdrop-blur rounded-3xl p-3.5 shadow-md border-2 border-orange-200 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <span id="activeLevelPill" class="font-heading font-bold text-sm sm:text-base px-3.5 py-1.5 rounded-2xl border-2"></span>
+          <select id="aloudSetSwitcher" onchange="changeWordSetFromSelect(this.value)"
+            class="bg-amber-50 border-2 border-amber-300 text-amber-950 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl focus:outline-none">
+          </select>
+        </div>
+        <button onclick="playSfx('pop'); speakInstruction('ให้หนูอ่านคำที่เห็นบนหน้าจอให้ชัดเจน สามารถกดปุ่มไมโครโฟนสีแดงเพื่อพูดให้ระบบฟัง หรือให้คุณครูและผู้ปกครองกดให้คะแนนด้านล่างได้เลยนะจ๊ะ')"
+          class="btn-3d bg-sky-100 hover:bg-sky-200 text-sky-900 border-2 border-sky-300 border-b-4 font-heading font-bold text-sm px-3.5 py-1.5 rounded-2xl flex items-center gap-1.5">
+          <span>🔊</span>
+          <span>ฟังคำชี้แจง</span>
+        </button>
+      </div>
+
+      <!-- แถบจุดแสดงข้อ 1-15 -->
+      <div class="bg-white/95 backdrop-blur rounded-3xl p-3.5 shadow-sm border-2 border-amber-200">
+        <div id="aloudNavStrip" class="flex flex-wrap gap-1.5 justify-center sm:justify-start"></div>
+      </div>
+
+      <!-- การ์ดบัตรคำอ่านออกเสียง พร้อมภาพประกอบสัตว์ประจำระดับขยับได้ -->
+      <section id="aloudStageCard" class="bg-white/95 backdrop-blur rounded-[2rem] p-5 sm:p-7 shadow-xl border-4 border-orange-200 text-center transition-colors duration-300">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4 pb-3 border-b-2 border-dashed border-slate-200">
+          <span id="aloudWordBadge" class="bg-orange-100 text-orange-900 font-heading font-bold text-sm sm:text-base px-4 py-1 rounded-full border border-orange-200"></span>
+          <span id="aloudWordLevelTag" class="font-heading font-bold text-sm px-3.5 py-1 rounded-full border-2"></span>
+        </div>
+
+        <!-- เวทีภาพประกอบสัตว์ประจำระดับ + บัตรคำขนาดใหญ่ -->
+        <div id="aloudWordCardBg" class="my-5 py-6 px-4 sm:px-6 rounded-[2rem] border-2 shadow-inner relative overflow-hidden transition-all duration-300">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+            <!-- ภาพประกอบ SVG สมจริงขยับได้ -->
+            <div id="aloudMascotWrap" class="w-32 h-32 sm:w-36 sm:h-36 shrink-0 flex items-center justify-center animate-float drop-shadow-md"></div>
+            <!-- คำศัพท์ขนาดใหญ่ -->
+            <div class="flex-1 text-center">
+              <div class="text-xs sm:text-sm font-heading font-bold uppercase tracking-wider opacity-70 mb-1">อ่านออกเสียงคำนี้ให้ชัดๆ นะจ๊ะ</div>
+              <div id="aloudWordDisplay" class="font-sarabun font-bold text-6xl sm:text-7xl text-slate-900 tracking-wide drop-shadow-sm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ปุ่มรับเสียงไมโครโฟน พร้อมคลื่นเสียงแอนิเมชัน -->
+        <div class="mb-5">
+          <button id="aloudWordMicBtn" onclick="startWordSpeechRecognition()"
+            class="btn-3d bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white border-b-4 border-rose-800 font-heading font-bold text-lg sm:text-xl px-8 py-4 rounded-2xl inline-flex items-center gap-3 shadow-md">
+            <span class="text-2xl">🎤</span>
+            <span id="aloudWordMicLabel">กดเพื่ออ่านออกเสียง</span>
+            <span id="micEqBars" class="hidden inline-flex items-center gap-1 h-6 ml-1">
+              <span class="eq-bar" style="animation-delay:0s;"></span>
+              <span class="eq-bar" style="animation-delay:0.15s;"></span>
+              <span class="eq-bar" style="animation-delay:0.3s;"></span>
+            </span>
+          </button>
+          <div id="aloudWordTranscript" class="mt-3 min-h-[32px] text-base sm:text-lg font-ui text-slate-600"></div>
+        </div>
+
+        <!-- แผงประเมินสำหรับครู/ผู้ปกครอง (0 หรือ 1 คะแนน) -->
+        <div class="bg-slate-50/90 border-2 border-slate-200 rounded-3xl p-4 max-w-xl mx-auto">
+          <p class="font-heading font-bold text-sm text-slate-600 mb-3">👨‍🏫 ครู / ผู้ปกครองประเมินผล (หรือปรับแก้จากระบบฟังเสียง):</p>
+          <div class="grid grid-cols-2 gap-3">
+            <button id="btnWordScore1" onclick="setWordScore(1)"
+              class="btn-3d py-3.5 px-4 rounded-2xl font-heading font-bold text-lg border-2 border-b-4 bg-white border-emerald-300 text-emerald-800 hover:bg-emerald-50">
+              ✅ อ่านได้ (1 คะแนน)
+            </button>
+            <button id="btnWordScore0" onclick="setWordScore(0)"
+              class="btn-3d py-3.5 px-4 rounded-2xl font-heading font-bold text-lg border-2 border-b-4 bg-white border-rose-300 text-rose-800 hover:bg-rose-50">
+              ❌ อ่านไม่ได้ (0 คะแนน)
+            </button>
+          </div>
+        </div>
+
+        <!-- ปุ่มนำทาง -->
+        <div class="mt-6 pt-5 border-t-2 border-dashed border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <button id="prevAloudWordBtn" onclick="moveAloudWord(-1)"
+            class="btn-3d bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 border-2 border-slate-300 border-b-4 rounded-2xl py-3 px-5 font-heading font-bold text-base">
+            ⬅️ คำก่อนหน้า
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button id="nextAloudWordBtn" onclick="moveAloudWord(1)"
+              class="btn-3d bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 text-white border-b-4 border-indigo-800 rounded-2xl py-3 px-7 font-heading font-bold text-base shadow-sm">
+              คำต่อไป ➡️
+            </button>
+            <button id="finishAloudBtn" onclick="attemptFinishSet()"
+              class="hidden btn-3d bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white border-b-4 border-emerald-800 rounded-2xl py-3 px-7 font-heading font-bold text-base shadow-md">
+              🏆 ส่งผลและดูคะแนน
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- โมดอลแจ้งเตือนเมื่อยังมีคำที่ยังไม่ได้ประเมิน -->
+    <div id="submitModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border-2 border-amber-300 animate-fade-in text-center">
+        <div class="text-5xl mb-3">🎤</div>
+        <h3 class="font-heading font-bold text-2xl text-slate-800 mb-2">ยังมีคำที่ยังไม่ได้ประเมินนะ!</h3>
+        <p id="submitModalMsg" class="text-slate-600 text-base sm:text-lg mb-5 leading-relaxed"></p>
+        <div class="flex flex-col sm:flex-row gap-2.5 justify-center">
+          <button onclick="goToFirstUnscored()"
+            class="btn-3d bg-sky-500 hover:bg-sky-600 text-white border-b-4 border-sky-700 font-heading font-bold text-base py-3 px-5 rounded-2xl">
+            🔍 กลับไปอ่านคำที่เหลือ
+          </button>
+          <button onclick="confirmFinishSet()"
+            class="btn-3d bg-amber-400 hover:bg-amber-500 text-amber-950 border-b-4 border-amber-600 font-heading font-bold text-base py-3 px-5 rounded-2xl">
+            ✅ ส่งผลคะแนนเลย
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- โมดอลตั้งค่าเชื่อมต่อ Google Sheets (สำหรับครู) -->
+    <div id="sheetSettingsModal" class="no-print hidden fixed inset-0 bg-slate-900/55 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-2 border-emerald-300 animate-fade-in">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+          <h3 class="font-heading font-bold text-xl text-emerald-900 flex items-center gap-2">
+            <span>📊</span> เชื่อมต่อ Google Sheets (สำหรับครู)
+          </h3>
+          <button onclick="closeSheetSettingsModal()" class="text-slate-400 hover:text-slate-700 font-bold text-xl px-2">✕</button>
+        </div>
+
+        <p class="text-sm sm:text-base text-slate-600 mb-3 leading-relaxed">
+          วาง <strong>URL ของ Web App</strong> ที่ได้จาก Google Apps Script เพื่อส่งผลคะแนนนักเรียนเข้าตาราง Google Sheets อัตโนมัติเมื่อทำจบชุด
+        </p>
+
+        <div class="mb-4">
+          <label for="sheetUrlInput" class="block font-heading font-bold text-sm text-slate-700 mb-1.5">Google Apps Script Web App URL:</label>
+          <input id="sheetUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec"
+            class="w-full text-sm font-ui bg-slate-50 border-2 border-slate-300 focus:border-emerald-500 focus:bg-white focus:outline-none rounded-2xl py-3 px-3.5">
+          <div id="sheetModalStatusText" class="mt-2 text-xs sm:text-sm font-ui"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
+          <button onclick="saveSheetUrlFromModal()"
+            class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white border-b-4 border-emerald-700 font-heading font-bold text-base py-2.5 px-4 rounded-2xl">
+            💾 บันทึกการเชื่อมต่อ
+          </button>
+          <button onclick="testSheetConnection()"
+            class="btn-3d bg-sky-500 hover:bg-sky-600 text-white border-b-4 border-sky-700 font-heading font-bold text-base py-2.5 px-4 rounded-2xl">
+            🧪 ทดสอบส่งข้อมูล
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-slate-100">
+          <button onclick="copyShareLinkWithSheet()"
+            class="btn-3d bg-amber-100 hover:bg-amber-200 text-amber-950 border-2 border-amber-300 border-b-4 font-heading font-bold text-sm py-2 px-3 rounded-2xl">
+            🔗 คัดลอกลิงก์แชร์นักเรียน
+          </button>
+          <button onclick="clearSheetUrlFromModal()"
+            class="btn-3d bg-rose-50 hover:bg-rose-100 text-rose-700 border-2 border-rose-200 border-b-4 font-heading font-bold text-sm py-2 px-3 rounded-2xl">
+            🗑️ ยกเลิกการเชื่อมต่อ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. หน้าสรุปผลคะแนนและฝึกฟังเสียงเฉลย (SUMMARY SCREEN) ==================== -->
+    <main id="summaryScreen" class="hidden flex-1 flex flex-col gap-5 animate-fade-in">
+      <div class="bg-white/95 backdrop-blur rounded-[2rem] p-5 sm:p-8 shadow-xl border-4 border-amber-300 print-clean">
+        <!-- แถบสถานะการส่งข้อมูลเข้า Google Sheets -->
+        <div id="sheetSyncBanner" class="no-print hidden mb-5 rounded-2xl px-4 py-3 border-2 flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base font-heading font-bold"></div>
+
+        <!-- หัวรายงาน -->
+        <div class="border-b-2 border-dashed border-slate-200 pb-5 mb-5 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div id="sumMascotWrap" class="no-print w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-50 to-sky-50 border-2 border-amber-200 flex items-center justify-center shrink-0 animate-float shadow-sm"></div>
+            <div>
+              <span class="inline-block bg-amber-100 text-amber-900 font-heading font-bold text-xs sm:text-sm px-3.5 py-1 rounded-full mb-2 border border-amber-200">
+                📄 รายงานผลการทดสอบการอ่านออกเสียง ป.1
+              </span>
+              <h2 id="sumHeadingTitle" class="font-heading font-bold text-2xl sm:text-3xl text-slate-800">
+                สรุปผลการอ่านออกเสียง
+              </h2>
+              <div id="sumStudentMeta" class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600 text-base"></div>
+            </div>
+          </div>
+          <div id="sumQualityBadge"></div>
+        </div>
+
+        <!-- การ์ดคะแนน 3 ช่อง -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6 print-break-inside-avoid">
+          <div class="bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-4 text-center">
+            <div class="text-sm text-emerald-800 font-heading font-bold mb-1">🏆 คะแนนที่ได้</div>
+            <div id="sumTotalScore" class="font-heading font-bold text-3xl text-emerald-700">0 / 15</div>
+            <div id="sumTotalPct" class="text-sm text-slate-600 mt-0.5 font-ui">ร้อยละ 0%</div>
+          </div>
+          <div class="bg-sky-50 border-2 border-sky-200 rounded-3xl p-4 text-center">
+            <div class="text-sm text-sky-800 font-heading font-bold mb-1">✅ อ่านถูกต้อง</div>
+            <div id="sumPassCount" class="font-heading font-bold text-3xl text-sky-700">0 คำ</div>
+            <div class="text-sm text-slate-500 mt-0.5 font-ui">จากทั้งหมด 15 คำ</div>
+          </div>
+          <div class="bg-rose-50 border-2 border-rose-200 rounded-3xl p-4 text-center">
+            <div class="text-sm text-rose-800 font-heading font-bold mb-1">🌱 ควรฝึกเพิ่ม</div>
+            <div id="sumFailCount" class="font-heading font-bold text-3xl text-rose-700">0 คำ</div>
+            <div class="text-sm text-slate-500 mt-0.5 font-ui">กด 🔊 ฝึกอ่านด้านล่างได้</div>
+          </div>
+        </div>
+
+        <!-- แถบความก้าวหน้าและคำแนะนำ -->
+        <section class="mb-6 bg-amber-50/75 border-2 border-amber-200 rounded-3xl p-4 sm:p-5 print-break-inside-avoid">
+          <h3 class="font-heading font-bold text-xl text-amber-950 mb-2 flex items-center gap-2">
+            <span>🧭</span> วิเคราะห์ผลและคำแนะนำการฝึกอ่าน
+          </h3>
+          <div id="rtAnalysisText" class="space-y-2 text-base sm:text-lg text-slate-700 leading-relaxed"></div>
+        </section>
+
+        <!-- ปุ่มดาวน์โหลด 3 รูปแบบ -->
+        <section class="no-print bg-sky-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 mb-6">
+          <h3 class="font-heading font-bold text-lg text-sky-900 mb-3 flex items-center gap-2">
+            <span>💾</span> ดาวน์โหลดและบันทึกผลคะแนน
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button onclick="downloadRTCSV()"
+              class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white border-b-4 border-emerald-700 font-heading font-bold text-base py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+              <span>📊</span><span>ดาวน์โหลด .CSV</span>
+            </button>
+            <button onclick="window.print()"
+              class="btn-3d bg-slate-600 hover:bg-slate-700 text-white border-b-4 border-slate-800 font-heading font-bold text-base py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+              <span>🖨️</span><span>พิมพ์ / บันทึก PDF</span>
+            </button>
+            <button onclick="downloadRTPNG()"
+              class="btn-3d bg-indigo-500 hover:bg-indigo-600 text-white border-b-4 border-indigo-700 font-heading font-bold text-base py-3 px-4 rounded-2xl flex items-center justify-center gap-2">
+              <span>🖼️</span><span>ดาวน์โหลดภาพ .PNG</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- รายการคำศัพท์ทั้ง 15 คำ พร้อมปุ่ม 🔊 ฟังเสียงอ่าน -->
+        <section class="mb-6 print-break-inside-avoid">
+          <h3 class="font-heading font-bold text-xl text-slate-800 mb-3 flex items-center gap-2">
+            <span>📖</span> รายละเอียดคำศัพท์ทั้ง 15 คำ (กด 🔊 เพื่อฟังเสียงอ่านที่ถูกต้อง)
+          </h3>
+          <div id="rtReviewContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
+        </section>
+
+        <!-- ช่องลงชื่อสำหรับพิมพ์ A4 -->
+        <section class="print-only mt-8 pt-6 border-t border-slate-300 print-break-inside-avoid">
+          <div class="grid grid-cols-2 gap-8 text-center text-sm">
+            <div>
+              <p class="mb-8">ลงชื่อ ........................................................ ผู้ปกครอง</p>
+              <p>( ........................................................ )</p>
+            </div>
+            <div>
+              <p class="mb-8">ลงชื่อ ........................................................ ครูผู้ประเมิน</p>
+              <p>( ........................................................ )</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ปุ่มนำทาง -->
+        <div class="no-print flex flex-wrap items-center justify-center gap-3 pt-2">
+          <button id="nextSetSummaryBtn" onclick="startNextWordSet()"
+            class="btn-3d bg-emerald-500 hover:bg-emerald-600 text-white border-b-4 border-emerald-700 font-heading font-bold text-base sm:text-lg py-3 px-6 rounded-2xl">
+            🚀 ทำชุดถัดไป
+          </button>
+          <button onclick="retryCurrentSet()"
+            class="btn-3d bg-amber-400 hover:bg-amber-500 text-amber-950 border-b-4 border-amber-600 font-heading font-bold text-base sm:text-lg py-3 px-6 rounded-2xl">
+            🔁 ฝึกชุดนี้อีกครั้ง
+          </button>
+          <button onclick="goHome()"
+            class="btn-3d bg-sky-500 hover:bg-sky-600 text-white border-b-4 border-sky-700 font-heading font-bold text-base sm:text-lg py-3 px-6 rounded-2xl">
+            🏠 กลับหน้าเลือกชุด
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== 5. หน้าประวัติการทดสอบ (HISTORY SCREEN) ==================== -->
+    <main id="historyScreen" class="hidden flex-1 flex flex-col gap-4 animate-fade-in">
+      <div class="bg-white rounded-3xl p-5 sm:p-7 shadow-md border-2 border-sky-200">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
+          <div>
+            <h2 class="font-heading font-bold text-2xl text-slate-800">📋 ประวัติการฝึกอ่านออกเสียง</h2>
+            <p id="historyCountSub" class="text-slate-500 text-sm"></p>
+          </div>
+          <div class="flex gap-2">
+            <button id="clearHistBtn" onclick="toggleClearHistConfirm(true)"
+              class="text-rose-600 hover:bg-rose-50 border border-rose-200 font-heading font-bold text-sm px-3.5 py-2 rounded-2xl">
+              🗑️ ล้างประวัติ
+            </button>
+            <button onclick="goHome()"
+              class="btn-3d bg-sky-500 hover:bg-sky-600 text-white border-b-4 border-sky-700 font-heading font-bold text-sm px-4 py-2 rounded-2xl">
+              🏠 กลับหน้าหลัก
+            </button>
+          </div>
+        </div>
+
+        <div id="clearHistConfirmBox" class="hidden mb-4 bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+          <span class="text-rose-900 font-bold">ต้องการล้างประวัติการทดสอบทั้งหมดใช่หรือไม่?</span>
+          <div class="flex gap-2">
+            <button onclick="confirmClearHistory()" class="bg-rose-600 hover:bg-rose-700 text-white font-heading font-bold text-sm px-4 py-1.5 rounded-xl">ยืนยัน</button>
+            <button onclick="toggleClearHistConfirm(false)" class="bg-white border border-slate-300 text-slate-700 font-heading font-bold text-sm px-4 py-1.5 rounded-xl">ยกเลิก</button>
+          </div>
+        </div>
+
+        <div id="historyList" class="space-y-3"></div>
+      </div>
+    </main>
+
+    <!-- Toast แจ้งเตือน -->
+    <div id="toastBox" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-lg font-ui text-base hidden z-50"></div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    // =========================================================================
+    // ★ ตั้งค่าลิงก์ Google Sheets (Google Apps Script Web App URL) ถาวรตรงนี้ ★
+    // นำ URL ที่ได้จากการ Deploy Apps Script มาวางในเครื่องหมายคำพูดด้านล่าง
+    // =========================================================================
+    const DEFAULT_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyfMUJSFDD5WzceOPNSiSrZ3zbP-LbK0JjpiR29MoPkeq38nYsEJCqWOuLKFXFUj_S1/exec';
+    const RT_SHEET_URL_KEY = 'rt_aloud_sheet_url_v1';
+
+    function initSheetUrlFromQuery() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const qUrl = params.get('sheet');
+        if (qUrl && qUrl.startsWith('https://script.google.com/')) {
+          localStorage.setItem(RT_SHEET_URL_KEY, qUrl.trim());
+        }
+      } catch (e) {}
+    }
+
+    function getSheetUrl() {
+      try {
+        const saved = localStorage.getItem(RT_SHEET_URL_KEY);
+        if (saved && saved.trim()) return saved.trim();
+      } catch (e) {}
+      return (DEFAULT_SHEET_URL || '').trim();
+    }
+
+    function updateSheetIndicatorUI() {
+      const dot = document.getElementById('sheetStatusDot');
+      if (!dot) return;
+      const hasUrl = Boolean(getSheetUrl());
+      dot.className = hasUrl
+        ? 'w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block ring-2 ring-emerald-200'
+        : 'w-2.5 h-2.5 rounded-full bg-slate-300 inline-block';
+    }
+
+    function openSheetSettingsModal() {
+      playSfx('pop');
+      const modal = document.getElementById('sheetSettingsModal');
+      const input = document.getElementById('sheetUrlInput');
+      const status = document.getElementById('sheetModalStatusText');
+      const current = getSheetUrl();
+      input.value = current;
+      status.innerHTML = current
+        ? '<span class="text-emerald-700 font-bold">✅ เชื่อมต่อ Google Sheets อยู่แล้ว</span>'
+        : '<span class="text-slate-500">⚪ ยังไม่ได้ตั้งค่า URL (ผลคะแนนจะเก็บเฉพาะในเครื่องนี้)</span>';
+      modal.classList.remove('hidden');
+    }
+
+    function closeSheetSettingsModal() {
+      document.getElementById('sheetSettingsModal').classList.add('hidden');
+    }
+
+    function saveSheetUrlFromModal() {
+      const val = document.getElementById('sheetUrlInput').value.trim();
+      const status = document.getElementById('sheetModalStatusText');
+      if (!val) {
+        clearSheetUrlFromModal();
+        return;
+      }
+      if (!val.startsWith('https://script.google.com/')) {
+        playSfx('fail');
+        status.innerHTML = '<span class="text-rose-600 font-bold">⚠️ URL ต้องขึ้นต้นด้วย https://script.google.com/ นะครับ</span>';
+        return;
+      }
+      try { localStorage.setItem(RT_SHEET_URL_KEY, val); } catch (e) {}
+      updateSheetIndicatorUI();
+      playSfx('pass');
+      status.innerHTML = '<span class="text-emerald-700 font-bold">✅ บันทึก URL เรียบร้อยแล้ว! พร้อมส่งคะแนนอัตโนมัติ</span>';
+      showToast('บันทึกการเชื่อมต่อ Google Sheets แล้ว 📊');
+    }
+
+    function clearSheetUrlFromModal() {
+      try { localStorage.removeItem(RT_SHEET_URL_KEY); } catch (e) {}
+      document.getElementById('sheetUrlInput').value = DEFAULT_SHEET_URL || '';
+      updateSheetIndicatorUI();
+      playSfx('pop');
+      document.getElementById('sheetModalStatusText').innerHTML = DEFAULT_SHEET_URL
+        ? '<span class="text-amber-700 font-bold">ℹ️ กลับไปใช้ URL ค่าเริ่มต้นที่ฝังไว้ในไฟล์</span>'
+        : '<span class="text-slate-500">⚪ ยกเลิกการเชื่อมต่อแล้ว</span>';
+      showToast('ล้างค่าการเชื่อมต่อในเครื่องนี้แล้ว');
+    }
+
+    async function sendPayloadToSheet(url, payload) {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    async function testSheetConnection() {
+      const val = document.getElementById('sheetUrlInput').value.trim() || getSheetUrl();
+      const status = document.getElementById('sheetModalStatusText');
+      if (!val || !val.startsWith('https://script.google.com/')) {
+        playSfx('fail');
+        status.innerHTML = '<span class="text-rose-600 font-bold">⚠️ กรุณาวาง URL ของ Google Apps Script ก่อนทดสอบ</span>';
+        return;
+      }
+      status.innerHTML = '<span class="text-sky-700 font-bold">⏳ กำลังส่งข้อมูลทดสอบไปยัง Google Sheets...</span>';
+      try {
+        await sendPayloadToSheet(val, {
+          studentName: 'ทดสอบระบบ (ครู)',
+          studentGender: '-',
+          levelName: 'นกกระจอก',
+          setNum: 1,
+          score: 15,
+          maxScore: 15,
+          pct: 100,
+          quality: 'ดีมาก',
+          passedWords: 'ทดสอบเชื่อมต่อสำเร็จ',
+          missedWords: '-'
+        });
+        playSfx('pass');
+        status.innerHTML = '<span class="text-emerald-700 font-bold">✅ ส่งคำสั่งทดสอบแล้ว! ลองเปิดดูแถวใหม่ใน Google Sheets ของครูได้เลย</span>';
+        showToast('ส่งข้อมูลทดสอบเข้า Google Sheets แล้ว 🎉');
+      } catch (e) {
+        playSfx('fail');
+        status.innerHTML = '<span class="text-rose-600 font-bold">❌ ส่งไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตหรือ URL อีกครั้ง</span>';
+      }
+    }
+
+    function copyShareLinkWithSheet() {
+      const url = document.getElementById('sheetUrlInput').value.trim() || getSheetUrl();
+      if (!url) {
+        playSfx('fail');
+        showToast('กรุณากรอกและบันทึก URL ของ Google Sheets ก่อนคัดลอกลิงก์');
+        return;
+      }
+      const base = window.location.href.split('?')[0];
+      const shareUrl = `${base}?sheet=${encodeURIComponent(url)}`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          playSfx('pass');
+          showToast('คัดลอกลิงก์สำหรับแชร์นักเรียนเรียบร้อยแล้ว 🔗');
+        }).catch(() => {
+          prompt('คัดลอกลิงก์ด้านล่างเพื่อแชร์ให้นักเรียน:', shareUrl);
+        });
+      } else {
+        prompt('คัดลอกลิงก์ด้านล่างเพื่อแชร์ให้นักเรียน:', shareUrl);
+      }
+    }
+
+    async function syncRecordToGoogleSheet(record) {
+      const banner = document.getElementById('sheetSyncBanner');
+      const url = getSheetUrl();
+      if (!banner) return;
+
+      if (!url) {
+        banner.classList.add('hidden');
+        return;
+      }
+
+      banner.classList.remove('hidden');
+      banner.className = 'no-print mb-5 rounded-2xl px-4 py-3 border-2 bg-sky-50 border-sky-200 text-sky-900 flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base font-heading font-bold';
+      banner.innerHTML = '<span>☁️ กำลังส่งผลคะแนนเข้า Google Sheets ของคุณครู...</span>';
+
+      const passedWords = record.items.filter(it => it.passed).map(it => it.word).join(', ');
+      const missedWords = record.items.filter(it => !it.passed).map(it => it.word).join(', ');
+
+      try {
+        await sendPayloadToSheet(url, {
+          studentName: record.studentName,
+          studentGender: getGenderLabel(record.studentGender),
+          levelName: record.levelName,
+          setNum: record.setNum,
+          score: record.score,
+          maxScore: record.maxScore,
+          pct: record.pct,
+          quality: getQualityInfo(record.pct).short,
+          passedWords: passedWords || '-',
+          missedWords: missedWords || 'อ่านได้ครบทุกคำ'
+        });
+
+        record.syncedToSheet = true;
+        saveHistory();
+
+        banner.className = 'no-print mb-5 rounded-2xl px-4 py-3 border-2 bg-emerald-50 border-emerald-300 text-emerald-900 flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base font-heading font-bold';
+        banner.innerHTML = '<span>✅ ส่งผลคะแนนเข้าตาราง Google Sheets ของคุณครูเรียบร้อยแล้ว!</span>';
+      } catch (e) {
+        banner.className = 'no-print mb-5 rounded-2xl px-4 py-3 border-2 bg-amber-50 border-amber-300 text-amber-950 flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base font-heading font-bold';
+        banner.innerHTML = `
+          <span>⚠️ ไม่สามารถส่งผลคะแนนได้ในขณะนี้ (อาจไม่มีอินเทอร์เน็ต)</span>
+          <button onclick="retrySyncCurrentRecord()" class="bg-amber-400 hover:bg-amber-500 text-amber-950 px-3 py-1 rounded-xl text-sm border-b-2 border-amber-600">ลองส่งอีกครั้ง</button>
+        `;
+      }
+    }
+
+    function retrySyncCurrentRecord() {
+      if (activeSummaryRecord) syncRecordToGoogleSheet(activeSummaryRecord);
+    }
+
+    // =========================================================================
+    // 0. ภาพประกอบ SVG ลงสีไล่เฉดสมจริงพร้อมแอนิเมชันขยับได้ ประจำ 4 ระดับความยาก
+    // =========================================================================
+    const LEVEL_SVG = {
+      sparrow: `
+        <svg viewBox="0 0 160 160" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="spBg" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#D1FAE5"/>
+              <stop offset="100%" stop-color="#6EE7B7"/>
+            </radialGradient>
+            <linearGradient id="spBody" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#B45309"/>
+              <stop offset="55%" stop-color="#92400E"/>
+              <stop offset="100%" stop-color="#78350F"/>
+            </linearGradient>
+            <linearGradient id="spBelly" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#FEF3C7"/>
+              <stop offset="100%" stop-color="#FDE68A"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="72" fill="url(#spBg)" stroke="#10B981" stroke-width="4"/>
+          <path d="M22 126 Q80 116 138 124" stroke="#78350F" stroke-width="7" stroke-linecap="round" fill="none"/>
+          <path d="M116 121 Q132 104 142 114 Q132 126 116 121Z" fill="#059669"/>
+          <path d="M36 123 Q24 108 38 104 Q48 114 36 123Z" fill="#10B981"/>
+          <polygon points="32,88 54,82 48,100 24,102" fill="#78350F"/>
+          <g class="svg-wing-left">
+            <path d="M62 76 Q32 42 56 36 Q78 46 84 74 Z" fill="#92400E" stroke="#78350F" stroke-width="2"/>
+            <path d="M52 50 L72 64 M48 60 L70 70" stroke="#FDE68A" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+          </g>
+          <ellipse cx="80" cy="90" rx="34" ry="26" fill="url(#spBody)"/>
+          <ellipse cx="86" cy="96" rx="24" ry="18" fill="url(#spBelly)"/>
+          <circle cx="102" cy="64" r="22" fill="url(#spBody)"/>
+          <ellipse cx="108" cy="69" rx="11" ry="8" fill="#FEF3C7"/>
+          <circle cx="106" cy="69" r="3.5" fill="#78350F" opacity="0.7"/>
+          <circle cx="110" cy="60" r="5" fill="#1E293B"/>
+          <circle cx="111.8" cy="58.2" r="1.8" fill="#FFFFFF"/>
+          <polygon points="122,60 138,65 122,71" fill="#F59E0B" stroke="#B45309" stroke-width="1.5"/>
+          <g class="svg-wing-right">
+            <path d="M74 84 Q102 52 94 94 Q80 104 64 96 Z" fill="#B45309" stroke="#78350F" stroke-width="2"/>
+            <path d="M72 86 L90 82 M74 92 L88 90" stroke="#FEF3C7" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+          </g>
+          <path d="M76 113 L74 122 M88 113 L90 122" stroke="#D97706" stroke-width="3.5" stroke-linecap="round"/>
+          <text x="24" y="42" font-size="18" class="animate-sparkle">✨</text>
+        </svg>
+      `,
+      pigeon: `
+        <svg viewBox="0 0 160 160" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="pgBg" cx="50%" cy="40%" r="58%">
+              <stop offset="0%" stop-color="#E0F2FE"/>
+              <stop offset="100%" stop-color="#38BDF8"/>
+            </radialGradient>
+            <linearGradient id="pgBody" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="65%" stop-color="#E2E8F0"/>
+              <stop offset="100%" stop-color="#94A3B8"/>
+            </linearGradient>
+            <linearGradient id="pgNeck" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38BDF8"/>
+              <stop offset="50%" stop-color="#818CF8"/>
+              <stop offset="100%" stop-color="#34D399"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="72" fill="url(#pgBg)" stroke="#0284C7" stroke-width="4"/>
+          <path d="M26 122 Q34 110 48 114 Q58 104 72 114 Q84 112 86 124 Z" fill="#FFFFFF" opacity="0.8"/>
+          <path d="M98 44 Q106 34 118 38 Q128 32 136 44 Z" fill="#FFFFFF" opacity="0.75"/>
+          <g class="svg-wing-left">
+            <path d="M72 78 Q22 22 44 26 Q72 34 86 68 Z" fill="url(#pgBody)" stroke="#64748B" stroke-width="2"/>
+            <path d="M46 38 L74 62 M38 48 L70 68" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <path d="M24 100 L56 84 L54 104 L28 114 Z" fill="#CBD5E1" stroke="#64748B" stroke-width="2"/>
+          <ellipse cx="80" cy="90" rx="34" ry="23" fill="url(#pgBody)" stroke="#94A3B8" stroke-width="2"/>
+          <path d="M92 70 Q108 74 106 90 Q90 92 86 78 Z" fill="url(#pgNeck)" opacity="0.85"/>
+          <circle cx="104" cy="60" r="18" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
+          <circle cx="110" cy="57" r="4.5" fill="#0F172A"/>
+          <circle cx="111.5" cy="55.5" r="1.6" fill="#FFFFFF"/>
+          <polygon points="120,57 136,61 120,66" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+          <path d="M130 63 Q142 74 146 66" stroke="#15803D" stroke-width="2.5" fill="none"/>
+          <circle cx="141" cy="70" r="3.5" fill="#22C55E"/>
+          <g class="svg-wing-right">
+            <path d="M74 86 Q116 42 104 88 Q88 104 62 96 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="2"/>
+            <path d="M72 88 L98 76 M74 94 L94 86" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <text x="122" y="128" font-size="18" class="animate-sparkle">✨</text>
+        </svg>
+      `,
+      eagle: `
+        <svg viewBox="0 0 160 160" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="egBg" cx="50%" cy="35%" r="60%">
+              <stop offset="0%" stop-color="#FEF08A"/>
+              <stop offset="55%" stop-color="#FBBF24"/>
+              <stop offset="100%" stop-color="#EA580C"/>
+            </radialGradient>
+            <linearGradient id="egWing" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#78350F"/>
+              <stop offset="60%" stop-color="#451A03"/>
+              <stop offset="100%" stop-color="#291002"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="72" fill="url(#egBg)" stroke="#D97706" stroke-width="4"/>
+          <polygon points="18,128 58,86 98,128" fill="#B45309" opacity="0.45"/>
+          <polygon points="74,128 114,90 144,128" fill="#92400E" opacity="0.55"/>
+          <g class="svg-wing-left">
+            <path d="M76 80 L14 34 L22 52 L16 62 L28 70 L24 80 L64 88 Z" fill="url(#egWing)" stroke="#F59E0B" stroke-width="1.5"/>
+          </g>
+          <g class="svg-wing-right">
+            <path d="M84 80 L146 34 L138 52 L144 62 L132 70 L136 80 L96 88 Z" fill="url(#egWing)" stroke="#F59E0B" stroke-width="1.5"/>
+          </g>
+          <polygon points="62,102 98,102 108,130 52,130" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
+          <ellipse cx="80" cy="88" rx="24" ry="26" fill="url(#egWing)"/>
+          <path d="M62 66 Q60 40 80 38 Q100 40 98 66 L90 74 L80 68 L70 74 Z" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+          <path d="M68 54 L76 57 M92 54 L84 57" stroke="#0F172A" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="72" cy="59" r="3.5" fill="#F59E0B"/>
+          <circle cx="72" cy="59" r="1.8" fill="#0F172A"/>
+          <circle cx="88" cy="59" r="3.5" fill="#F59E0B"/>
+          <circle cx="88" cy="59" r="1.8" fill="#0F172A"/>
+          <path d="M74 63 Q80 58 86 63 L80 76 Z" fill="#FBBF24" stroke="#B45309" stroke-width="2"/>
+          <path d="M70 112 L66 122 M74 112 L74 123 M86 112 L86 123 M90 112 L94 122" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
+          <text x="118" y="34" font-size="18" class="animate-sparkle">⚡</text>
+        </svg>
+      `,
+      fire_dragon: `
+        <svg viewBox="0 0 160 160" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="drBg" cx="50%" cy="45%" r="58%">
+              <stop offset="0%" stop-color="#FEF08A"/>
+              <stop offset="45%" stop-color="#F97316"/>
+              <stop offset="100%" stop-color="#9F1239"/>
+            </radialGradient>
+            <linearGradient id="drSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#EF4444"/>
+              <stop offset="55%" stop-color="#DC2626"/>
+              <stop offset="100%" stop-color="#881337"/>
+            </linearGradient>
+            <linearGradient id="drFire" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stop-color="#FEF08A"/>
+              <stop offset="50%" stop-color="#FB923C"/>
+              <stop offset="100%" stop-color="#EF4444"/>
+            </linearGradient>
+          </defs>
+          <circle cx="80" cy="80" r="72" fill="url(#drBg)" stroke="#F43F5E" stroke-width="4"/>
+          <g class="svg-flame">
+            <path d="M114 68 Q138 52 152 64 Q142 72 154 80 Q134 86 114 76 Z" fill="url(#drFire)"/>
+            <path d="M116 70 Q130 62 140 69 Q132 75 116 74 Z" fill="#FEF9C3"/>
+          </g>
+          <g class="svg-wing-left">
+            <path d="M62 76 L18 28 Q38 46 32 62 Q48 64 56 84 Z" fill="#991B1B" stroke="#FBBF24" stroke-width="2"/>
+          </g>
+          <path d="M36 110 Q18 118 22 96" stroke="#B91C1C" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <polygon points="16,96 28,90 24,104" fill="#FBBF24"/>
+          <ellipse cx="68" cy="100" rx="30" ry="26" fill="url(#drSkin)"/>
+          <path d="M64 84 Q86 92 84 118 Q64 122 56 108 Z" fill="#FDE047" opacity="0.9"/>
+          <path d="M62 96 L80 96 M60 105 L82 105 M62 114 L78 114" stroke="#D97706" stroke-width="2"/>
+          <path d="M52 54 L42 60 L54 68 L44 76 L58 82" fill="#F59E0B"/>
+          <path d="M62 46 Q86 38 112 54 Q122 64 112 76 Q92 82 68 74 Z" fill="url(#drSkin)" stroke="#7F1D1D" stroke-width="2"/>
+          <path d="M74 44 L62 24 L82 40 Z" fill="#FBBF24" stroke="#B45309" stroke-width="1.5"/>
+          <path d="M88 44 L84 24 L96 42 Z" fill="#FDE047" stroke="#B45309" stroke-width="1.5"/>
+          <ellipse cx="94" cy="58" rx="6" ry="5" fill="#FEF08A"/>
+          <ellipse cx="95" cy="58" rx="2.5" ry="4" fill="#7F1D1D"/>
+          <circle cx="110" cy="60" r="2" fill="#450A0A"/>
+          <polygon points="102,73 106,79 109,73" fill="#FFFFFF"/>
+          <g class="svg-wing-right">
+            <path d="M72 86 L38 56 Q62 66 86 92 Q72 104 54 98 Z" fill="#B91C1C" stroke="#FBBF24" stroke-width="2"/>
+          </g>
+          <text x="20" y="42" font-size="16" class="animate-sparkle">🔥</text>
+        </svg>
+      `
+    };
+
+    // =========================================================================
+    // 0.5 ระบบเสียงเอฟเฟกต์ประกอบ (Web Audio API — ไม่ต้องใช้ไฟล์ภายนอก)
+    // =========================================================================
+    const SFX_PREF_KEY = 'rt_aloud_sfx_v1';
+    let sfxEnabled = loadSfxPref();
+    let audioCtx = null;
+
+    function loadSfxPref() {
+      try {
+        const v = localStorage.getItem(SFX_PREF_KEY);
+        if (v === 'false') return false;
+      } catch (e) {}
+      return true;
+    }
+
+    function updateSfxBtnUI() {
+      const icon = document.getElementById('sfxToggleIcon');
+      const lbl = document.getElementById('sfxToggleLabel');
+      const btn = document.getElementById('sfxToggleBtn');
+      if (!btn) return;
+      if (sfxEnabled) {
+        icon.textContent = '🔔';
+        lbl.textContent = 'เสียงเอฟเฟกต์';
+        btn.className = 'btn-3d inline-flex items-center gap-1 bg-violet-100 hover:bg-violet-200 text-violet-900 border-2 border-violet-300 border-b-4 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl';
+      } else {
+        icon.textContent = '🔕';
+        lbl.textContent = 'ปิดเสียงอยู่';
+        btn.className = 'btn-3d inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border-2 border-slate-300 border-b-4 font-heading font-bold text-sm px-3 py-1.5 rounded-2xl';
+      }
+    }
+
+    function toggleSfx() {
+      sfxEnabled = !sfxEnabled;
+      try { localStorage.setItem(SFX_PREF_KEY, String(sfxEnabled)); } catch (e) {}
+      updateSfxBtnUI();
+      if (sfxEnabled) playSfx('pass');
+      showToast(sfxEnabled ? 'เปิดเสียงเอฟเฟกต์ประกอบแล้ว 🔔' : 'ปิดเสียงเอฟเฟกต์แล้ว 🔕');
+    }
+
+    function playSfx(type) {
+      if (!sfxEnabled) return;
+      try {
+        const AudioCtor = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtor) return;
+        if (!audioCtx) audioCtx = new AudioCtor();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const tone = (freq, start, dur, wave = 'triangle', vol = 0.14, endFreq = null) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = wave;
+          osc.frequency.setValueAtTime(freq, now + start);
+          if (endFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, now + start + dur);
+          gain.gain.setValueAtTime(0.001, now + start);
+          gain.gain.linearRampToValueAtTime(vol, now + start + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + start);
+          osc.stop(now + start + dur + 0.03);
+        };
+
+        if (type === 'pop') {
+          tone(520, 0, 0.08, 'sine', 0.12, 740);
+        } else if (type === 'next') {
+          tone(440, 0, 0.09, 'triangle', 0.11, 660);
+        } else if (type === 'mic') {
+          tone(660, 0, 0.11, 'sine', 0.13);
+          tone(880, 0.09, 0.16, 'sine', 0.14);
+        } else if (type === 'pass') {
+          tone(523.25, 0, 0.12, 'triangle', 0.16);
+          tone(659.25, 0.08, 0.14, 'triangle', 0.16);
+          tone(783.99, 0.16, 0.22, 'sine', 0.17);
+          tone(1046.5, 0.24, 0.28, 'sine', 0.15);
+        } else if (type === 'fail') {
+          tone(330, 0, 0.14, 'sine', 0.12, 260);
+          tone(250, 0.12, 0.18, 'sine', 0.11, 210);
+        } else if (type === 'victory') {
+          const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+          const times = [0, 0.09, 0.18, 0.28, 0.42, 0.52];
+          const durs  = [0.12, 0.12, 0.12, 0.18, 0.12, 0.42];
+          notes.forEach((n, i) => tone(n, times[i], durs[i], i % 2 === 0 ? 'triangle' : 'sine', 0.16));
+        }
+      } catch (e) {}
+    }
+
+    function launchConfetti() {
+      const colors = ['#F43F5E', '#F59E0B', '#10B981', '#0EA5E9', '#8B5CF6', '#EC4899'];
+      for (let i = 0; i < 42; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece no-print';
+        const size = 8 + Math.random() * 8;
+        piece.style.width = `${size}px`;
+        piece.style.height = `${size * 0.65}px`;
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDuration = `${2.2 + Math.random() * 1.8}s`;
+        piece.style.animationDelay = `${Math.random() * 0.45}s`;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4500);
+      }
+    }
+
+    // =========================================================================
+    // 1. ระดับความยาก 4 ระดับ + คลังคำศัพท์พื้นฐาน ป.1 (20 ชุด x 15 คำ = 300 คำไม่ซ้ำกัน)
+    // =========================================================================
+    const RT_LEVELS = [
+      {
+        key: 'sparrow',
+        name: 'นกกระจอก',
+        icon: '🐦',
+        desc: 'ระดับที่ 1 — คำพื้นฐานอ่านง่าย พยางค์เดียวและตัวสะกดเบื้องต้น',
+        range: [0, 4],
+        wrapCls: 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-300 shadow-sm',
+        titleCls: 'text-emerald-800',
+        pillCls: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+        idleBtnCls: 'bg-white text-slate-800 border-emerald-300 border-b-emerald-400 hover:bg-emerald-50',
+        stageBorderCls: 'border-emerald-300',
+        cardBgCls: 'bg-gradient-to-br from-emerald-50 via-white to-teal-50 border-emerald-300',
+        bannerHex: '#10B981'
+      },
+      {
+        key: 'pigeon',
+        name: 'นกพิราบ',
+        icon: '🕊️',
+        desc: 'ระดับที่ 2 — คำกริยา คำคุณศัพท์ สระเปลี่ยนรูป/ลดรูป และวรรณยุกต์หลากหลาย',
+        range: [5, 9],
+        wrapCls: 'bg-gradient-to-br from-sky-50 to-indigo-50 border-sky-300 shadow-sm',
+        titleCls: 'text-sky-800',
+        pillCls: 'bg-sky-100 text-sky-900 border-sky-300',
+        idleBtnCls: 'bg-white text-slate-800 border-sky-300 border-b-sky-400 hover:bg-sky-50',
+        stageBorderCls: 'border-sky-300',
+        cardBgCls: 'bg-gradient-to-br from-sky-50 via-white to-indigo-50 border-sky-300',
+        bannerHex: '#0EA5E9'
+      },
+      {
+        key: 'eagle',
+        name: 'นกอินทรี',
+        icon: '🦅',
+        desc: 'ระดับที่ 3 — คำสองพยางค์ คำประสม และคำศัพท์รอบตัว ป.1',
+        range: [10, 14],
+        wrapCls: 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300 shadow-sm',
+        titleCls: 'text-amber-900',
+        pillCls: 'bg-amber-100 text-amber-950 border-amber-300',
+        idleBtnCls: 'bg-white text-slate-800 border-amber-300 border-b-amber-400 hover:bg-amber-50',
+        stageBorderCls: 'border-amber-300',
+        cardBgCls: 'bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-amber-300',
+        bannerHex: '#F59E0B'
+      },
+      {
+        key: 'fire_dragon',
+        name: 'มังกรไฟ',
+        icon: '🔥',
+        desc: 'ระดับที่ 4 — คำควบกล้ำ คำอักษรนำ ตัวสะกดไม่ตรงมาตรา และคำท้าทาย',
+        range: [15, 19],
+        wrapCls: 'bg-gradient-to-br from-rose-50 to-orange-50 border-rose-300 shadow-sm',
+        titleCls: 'text-rose-800',
+        pillCls: 'bg-rose-100 text-rose-900 border-rose-300',
+        idleBtnCls: 'bg-white text-slate-800 border-rose-300 border-b-rose-400 hover:bg-rose-50',
+        stageBorderCls: 'border-rose-400',
+        cardBgCls: 'bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 border-rose-300',
+        bannerHex: '#E11D48'
+      }
+    ];
+
+    const RT_WORD_SETS = [
+      // ระดับที่ 1: นกกระจอก (ชุดที่ 1–5)
+      {
+        setNum: 1, levelKey: 'sparrow', levelIcon: '🐦', levelName: 'นกกระจอก',
+        words: ['ตา', 'มา', 'นา', 'ขา', 'ปู', 'ดู', 'หู', 'งู', 'กา', 'ยา', 'ฝา', 'พา', 'สี', 'มี', 'ดี']
+      },
+      {
+        setNum: 2, levelKey: 'sparrow', levelIcon: '🐦', levelName: 'นกกระจอก',
+        words: ['ใบ', 'ใจ', 'ไฟ', 'ไป', 'ไก่', 'ไข่', 'แม่', 'พ่อ', 'พี่', 'ม้า', 'ผ้า', 'ฟ้า', 'น้ำ', 'ดำ', 'จำ']
+      },
+      {
+        setNum: 3, levelKey: 'sparrow', levelIcon: '🐦', levelName: 'นกกระจอก',
+        words: ['นก', 'กบ', 'มด', 'คน', 'ฝน', 'ดิน', 'กิน', 'บิน', 'ยิ้ม', 'ลิง', 'ช้าง', 'หมา', 'แมว', 'เป็ด', 'ป้า']
+      },
+      {
+        setNum: 4, levelKey: 'sparrow', levelIcon: '🐦', levelName: 'นกกระจอก',
+        words: ['บ้าน', 'จาน', 'ชาม', 'ถ้วย', 'ช้อน', 'มีด', 'โต๊ะ', 'ตู้', 'เต่า', 'ร่ม', 'รถ', 'วัด', 'ป่า', 'บ่อ', 'บก']
+      },
+      {
+        setNum: 5, levelKey: 'sparrow', levelIcon: '🐦', levelName: 'นกกระจอก',
+        words: ['มือ', 'เท้า', 'ปาก', 'ฟัน', 'ผม', 'แขน', 'คาง', 'คอ', 'นิ้ว', 'ลิ้น', 'ดาว', 'เมฆ', 'แดด', 'ลม', 'เย็น']
+      },
+
+      // ระดับที่ 2: นกพิราบ (ชุดที่ 6–10)
+      {
+        setNum: 6, levelKey: 'pigeon', levelIcon: '🕊️', levelName: 'นกพิราบ',
+        words: ['เดิน', 'วิ่ง', 'นั่ง', 'นอน', 'ตื่น', 'ดื่ม', 'อาบ', 'ล้าง', 'เช็ด', 'ถู', 'ขุด', 'ปีน', 'ตัด', 'ตัก', 'นับ']
+      },
+      {
+        setNum: 7, levelKey: 'pigeon', levelIcon: '🕊️', levelName: 'นกพิราบ',
+        words: ['เขียน', 'อ่าน', 'พูด', 'ฟัง', 'คิด', 'ถาม', 'ตอบ', 'บอก', 'เชื่อ', 'เจอ', 'เจ็บ', 'ง่วง', 'เงียบ', 'เก่ง', 'ชิม']
+      },
+      {
+        setNum: 8, levelKey: 'pigeon', levelIcon: '🕊️', levelName: 'นกพิราบ',
+        words: ['ข้าว', 'ผัก', 'ผัด', 'ซัก', 'ซื้อ', 'ขาย', 'ทำ', 'ทาง', 'ร้อง', 'ร้อน', 'แน่น', 'เบา', 'สูง', 'ต่ำ', 'กว้าง']
+      },
+      {
+        setNum: 9, levelKey: 'pigeon', levelIcon: '🕊️', levelName: 'นกพิราบ',
+        words: ['แดง', 'เขียว', 'เหลือง', 'ขาว', 'ส้ม', 'ม่วง', 'ชมพู', 'น้อย', 'มาก', 'ใหญ่', 'เล็ก', 'ยาว', 'สั้น', 'อ้วน', 'ผอม']
+      },
+      {
+        setNum: 10, levelKey: 'pigeon', levelIcon: '🕊️', levelName: 'นกพิราบ',
+        words: ['เช้า', 'สาย', 'บ่าย', 'ค่ำ', 'ดึก', 'วัน', 'เดือน', 'ปี', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด']
+      },
+
+      // ระดับที่ 3: นกอินทรี (ชุดที่ 11–15)
+      {
+        setNum: 11, levelKey: 'eagle', levelIcon: '🦅', levelName: 'นกอินทรี',
+        words: ['มะม่วง', 'แตงโม', 'ทุเรียน', 'ทับทิม', 'ขนม', 'กาแฟ', 'กะปิ', 'มะละกอ', 'สับปะรด', 'ชมพู่', 'ละมุด', 'ลำไย', 'มะพร้าว', 'ฝรั่ง', 'เงาะ']
+      },
+      {
+        setNum: 12, levelKey: 'eagle', levelIcon: '🦅', levelName: 'นกอินทรี',
+        words: ['ดินสอ', 'เก้าอี้', 'ที่นอน', 'นาฬิกา', 'กางเกง', 'กำไล', 'กระเป๋า', 'กระจก', 'กระดาน', 'ยางลบ', 'ไม้กวาด', 'ผ้าห่ม', 'รองเท้า', 'ถุงเท้า', 'เสื้อผ้า']
+      },
+      {
+        setNum: 13, levelKey: 'eagle', levelIcon: '🦅', levelName: 'นกอินทรี',
+        words: ['กระต่าย', 'จิ้งจก', 'ผีเสื้อ', 'นกฮูก', 'ค้างคาว', 'ชาวนา', 'ตุ๊กแก', 'ตะขาบ', 'ม้าน้ำ', 'ปลาดาว', 'ปลาทู', 'ปลาหมึก', 'ยีราฟ', 'สิงโต', 'จระเข้']
+      },
+      {
+        setNum: 14, levelKey: 'eagle', levelIcon: '🦅', levelName: 'นกอินทรี',
+        words: ['โรงเรียน', 'ตลาด', 'ถนน', 'ทะเล', 'สนาม', 'ใบไม้', 'ดอกไม้', 'ต้นไม้', 'ผลไม้', 'ดีใจ', 'เสียใจ', 'น้ำใจ', 'ตั้งใจ', 'พอใจ', 'เข้าใจ']
+      },
+      {
+        setNum: 15, levelKey: 'eagle', levelIcon: '🦅', levelName: 'นกอินทรี',
+        words: ['คุณครู', 'คุณแม่', 'คุณพ่อ', 'คุณยาย', 'คุณตา', 'คุณปู่', 'คุณย่า', 'นักเรียน', 'ตำรวจ', 'พยาบาล', 'แม่ค้า', 'ชาวสวน', 'พี่ชาย', 'น้องสาว', 'เพื่อนบ้าน']
+      },
+
+      // ระดับที่ 4: มังกรไฟ (ชุดที่ 16–20)
+      {
+        setNum: 16, levelKey: 'fire_dragon', levelIcon: '🔥', levelName: 'มังกรไฟ',
+        words: ['กรง', 'กล้วย', 'กวาด', 'ขวาน', 'ครก', 'ครู', 'คลื่น', 'ควาย', 'ปลา', 'แปรง', 'ปลูก', 'คลอง', 'พร้อม', 'พริก', 'พระ']
+      },
+      {
+        setNum: 17, levelKey: 'fire_dragon', levelIcon: '🔥', levelName: 'มังกรไฟ',
+        words: ['จริง', 'ทรง', 'ทราย', 'สร้าง', 'สร้อย', 'เศร้า', 'สงบ', 'สวัสดี', 'ฉลาด', 'สนุก', 'สบาย', 'สว่าง', 'สะอาด', 'สมุด', 'ขยะ']
+      },
+      {
+        setNum: 18, levelKey: 'fire_dragon', levelIcon: '🔥', levelName: 'มังกรไฟ',
+        words: ['หมี', 'หมู', 'หมวก', 'หมอน', 'หมอ', 'หลับ', 'หลาน', 'หลาย', 'หลวง', 'หวี', 'หวาน', 'แหวน', 'หญิง', 'หญ้า', 'หยุด']
+      },
+      {
+        setNum: 19, levelKey: 'fire_dragon', levelIcon: '🔥', levelName: 'มังกรไฟ',
+        words: ['ครอบครัว', 'จดหมาย', 'จมูก', 'อร่อย', 'องุ่น', 'อย่า', 'อยู่', 'อย่าง', 'อยาก', 'ปลอบ', 'เปลี่ยน', 'เปลือก', 'เตรียม', 'กราบ', 'แกร่ง']
+      },
+      {
+        setNum: 20, levelKey: 'fire_dragon', levelIcon: '🔥', levelName: 'มังกรไฟ',
+        words: ['กฎ', 'บุญ', 'บัตร', 'ภาพ', 'เลข', 'จันทร์', 'สุข', 'ทุกข์', 'สัตว์', 'เพื่อน', 'เที่ยว', 'เคียว', 'เชือก', 'เมือง', 'เรื่อง']
+      }
+    ];
+
+    const WORDS_PER_SET = 15;
+
+    function getLevelObj(levelKey) {
+      return RT_LEVELS.find(l => l.key === levelKey) || RT_LEVELS[0];
+    }
+
+    // =========================================================================
+    // 2. สถานะของแอปพลิเคชัน (App State) & localStorage
+    // =========================================================================
+    const RT_USER_KEY = 'rt_aloud_user_v1';
+    const RT_HIST_KEY = 'rt_aloud_history_v1';
+    const RT_PROGRESS_KEY = 'rt_aloud_progress_20sets_v1';
+
+    let currentUser = loadUser();
+    let rtHistory = loadHistory();
+    let wordSetProgress = loadWordSetProgress();
+    let selectedLoginGender = null;
+
+    let activeWordSetIdx = 0; // 0..19
+    let aloudWordIdx = 0;     // 0..14
+    let wordScores = new Array(WORDS_PER_SET).fill(null); // 1 | 0 | null
+    let wordTranscripts = new Array(WORDS_PER_SET).fill('');
+    let activeRecognition = null;
+    let activeSummaryRecord = null;
+
+    function loadUser() {
+      try {
+        const raw = localStorage.getItem(RT_USER_KEY);
+        if (raw) {
+          const obj = JSON.parse(raw);
+          if (obj && obj.name && obj.gender) return obj;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    function saveUser(u) {
+      currentUser = u;
+      try { localStorage.setItem(RT_USER_KEY, JSON.stringify(u)); } catch (e) {}
+      updateHeaderUI();
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem(RT_HIST_KEY);
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) return arr;
+        }
+      } catch (e) {}
+      return [];
+    }
+
+    function saveHistory() {
+      try { localStorage.setItem(RT_HIST_KEY, JSON.stringify(rtHistory)); } catch (e) {}
+    }
+
+    function loadWordSetProgress() {
+      try {
+        const raw = localStorage.getItem(RT_PROGRESS_KEY);
+        if (raw) {
+          const obj = JSON.parse(raw);
+          if (obj && typeof obj === 'object') return obj;
+        }
+      } catch (e) {}
+      return {};
+    }
+
+    function saveWordSetProgress() {
+      try { localStorage.setItem(RT_PROGRESS_KEY, JSON.stringify(wordSetProgress)); } catch (e) {}
+    }
+
+    function getGenderIcon(g) { return g === 'female' ? '👧' : '👦'; }
+    function getGenderLabel(g) { return g === 'female' ? 'หญิง' : 'ชาย'; }
+
+    // =========================================================================
+    // 3. ระบบเสียงคำชี้แจง / เฉลย (Speech Synthesis) และรับเสียงไมโครโฟน (Speech Recognition)
+    // =========================================================================
+    function stopAllAudio() {
+      try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {}
+      stopSpeechRecognition();
+    }
+
+    function speakInstruction(text) {
+      if (!('speechSynthesis' in window)) {
+        showToast('เบราว์เซอร์นี้ยังไม่รองรับเสียงอ่านอัตโนมัติ');
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'th-TH';
+        u.rate = 0.9;
+        const thVoice = window.speechSynthesis.getVoices().find(v => v.lang.includes('th'));
+        if (thVoice) u.voice = thVoice;
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+
+    function stopSpeechRecognition() {
+      if (activeRecognition) {
+        try { activeRecognition.stop(); } catch (e) {}
+        activeRecognition = null;
+      }
+      const btn = document.getElementById('aloudWordMicBtn');
+      const lbl = document.getElementById('aloudWordMicLabel');
+      const eq = document.getElementById('micEqBars');
+      if (btn) btn.classList.remove('mic-listening');
+      if (lbl) lbl.textContent = 'กดเพื่ออ่านออกเสียง';
+      if (eq) eq.classList.add('hidden');
+    }
+
+    function startWordSpeechRecognition() {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        playSfx('fail');
+        showToast('เบราว์เซอร์นี้ไม่รองรับไมโครโฟน กรุณาใช้ Chrome/Edge หรือให้ครูประเมินด้วยปุ่มด้านล่าง');
+        return;
+      }
+
+      if (activeRecognition) {
+        stopSpeechRecognition();
+        return;
+      }
+
+      playSfx('mic');
+      const target = RT_WORD_SETS[activeWordSetIdx].words[aloudWordIdx];
+
+      try {
+        const rec = new SpeechRec();
+        rec.lang = 'th-TH';
+        rec.interimResults = false;
+        rec.maxAlternatives = 3;
+        activeRecognition = rec;
+
+        const btn = document.getElementById('aloudWordMicBtn');
+        const lbl = document.getElementById('aloudWordMicLabel');
+        const eq = document.getElementById('micEqBars');
+        btn.classList.add('mic-listening');
+        lbl.textContent = 'กำลังฟังเสียง... พูดได้เลยจ้า';
+        if (eq) eq.classList.remove('hidden');
+
+        rec.onresult = (event) => {
+          const allAlts = [];
+          for (let i = 0; i < event.results[0].length; i++) {
+            allAlts.push(event.results[0][i].transcript.trim());
+          }
+          const best = allAlts[0] || '';
+          wordTranscripts[aloudWordIdx] = best;
+          const cleanTarget = target.replace(/\s+/g, '');
+          const matched = allAlts.some(alt => {
+            const cAlt = alt.replace(/\s+/g, '');
+            return cAlt.includes(cleanTarget) || cleanTarget.includes(cAlt);
+          });
+          wordScores[aloudWordIdx] = matched ? 1 : 0;
+          playSfx(matched ? 'pass' : 'fail');
+          renderAloudWord(false);
+          if (matched) triggerMascotCheer();
+          showToast(matched ? 'เยี่ยมมาก! อ่านถูกต้อง (+1 คะแนน) 🌟' : 'ระบบตรวจไม่ตรงคำศัพท์ (ครูสามารถปรับคะแนนด้านล่างได้)');
+        };
+
+        rec.onerror = (event) => {
+          playSfx('fail');
+          if (event.error === 'not-allowed') {
+            showToast('กรุณากด “อนุญาต” การใช้ไมโครโฟนบนเบราว์เซอร์ก่อนนะจ๊ะ');
+          } else {
+            showToast('ไม่ได้ยินเสียง ลองกดไมโครโฟนแล้วพูดใหม่อีกครั้งนะ');
+          }
+        };
+
+        rec.onend = () => {
+          activeRecognition = null;
+          btn.classList.remove('mic-listening');
+          lbl.textContent = 'กดเพื่ออ่านออกเสียง';
+          if (eq) eq.classList.add('hidden');
+        };
+
+        rec.start();
+      } catch (e) {
+        showToast('ไม่สามารถเปิดไมโครโฟนได้ในขณะนี้');
+        stopSpeechRecognition();
+      }
+    }
+
+    function triggerMascotCheer() {
+      const m = document.getElementById('aloudMascotWrap');
+      if (!m) return;
+      m.classList.remove('mascot-cheer');
+      void m.offsetWidth;
+      m.classList.add('mascot-cheer');
+    }
+
+    // =========================================================================
+    // 4. การนำทาง หน้าลงชื่อ และหน้าหลักเลือกชุด 4 ระดับ (Login & Home)
+    // =========================================================================
+    function hideAllScreens() {
+      stopAllAudio();
+      ['loginScreen', 'homeScreen', 'aloudScreen', 'summaryScreen', 'historyScreen'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('examProgressWrap').classList.add('hidden');
+      document.getElementById('submitModal').classList.add('hidden');
+    }
+
+    function updateHeaderUI() {
+      const ctrl = document.getElementById('headerControls');
+      const badge = document.getElementById('headerUserBadge');
+      if (currentUser) {
+        ctrl.classList.remove('hidden');
+        badge.textContent = `${getGenderIcon(currentUser.gender)} ${currentUser.name}`;
+      } else {
+        ctrl.classList.add('hidden');
+      }
+    }
+
+    function handleLogoClick() {
+      if (currentUser) goHome();
+      else openLoginScreen(false);
+    }
+
+    function openLoginScreen(prefill = false) {
+      hideAllScreens();
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+      const hero = document.getElementById('loginHeroMascot');
+      if (hero) hero.innerHTML = LEVEL_SVG.fire_dragon;
+      const input = document.getElementById('studentNameInput');
+      if (prefill && currentUser) {
+        selectedLoginGender = currentUser.gender;
+        input.value = currentUser.name;
+      } else if (!currentUser) {
+        selectedLoginGender = null;
+        input.value = '';
+      }
+      renderGenderUI();
+    }
+
+    function selectGender(g) {
+      playSfx('pop');
+      selectedLoginGender = g;
+      renderGenderUI();
+      document.getElementById('loginErrorMsg').classList.add('hidden');
+    }
+
+    function renderGenderUI() {
+      document.getElementById('btnGenderMale').classList.toggle('selected-male', selectedLoginGender === 'male');
+      document.getElementById('btnGenderFemale').classList.toggle('selected-female', selectedLoginGender === 'female');
+    }
+
+    function submitLogin() {
+      const nameVal = document.getElementById('studentNameInput').value.trim();
+      const err = document.getElementById('loginErrorMsg');
+      if (!selectedLoginGender) {
+        playSfx('fail');
+        err.textContent = 'กรุณากดเลือก ชาย หรือ หญิง ก่อนนะจ๊ะ';
+        err.classList.remove('hidden');
+        return;
+      }
+      if (!nameVal) {
+        playSfx('fail');
+        err.textContent = 'กรุณาพิมพ์ชื่อของหนูก่อนนะจ๊ะ';
+        err.classList.remove('hidden');
+        document.getElementById('studentNameInput').focus();
+        return;
+      }
+      playSfx('pass');
+      saveUser({ name: nameVal, gender: selectedLoginGender });
+      goHome();
+    }
+
+    function goHome() {
+      if (!currentUser) { openLoginScreen(false); return; }
+      hideAllScreens();
+      document.getElementById('homeScreen').classList.remove('hidden');
+      document.getElementById('homeWelcomeTitle').textContent =
+        `สวัสดี ${getGenderIcon(currentUser.gender)} ${currentUser.name} พร้อมลุยด่านไหนดี?`;
+
+      renderWordSetsGrid();
+      updateHeaderUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderWordSetsGrid() {
+      const grid = document.getElementById('wordSetsGrid');
+      grid.innerHTML = '';
+      let doneSets = 0;
+
+      RT_LEVELS.forEach(level => {
+        const section = document.createElement('div');
+        section.className = `rounded-3xl p-4 sm:p-5 border-2 ${level.wrapCls}`;
+
+        let levelDone = 0;
+        for (let idx = level.range[0]; idx <= level.range[1]; idx++) {
+          if (typeof wordSetProgress[String(idx)] === 'number') levelDone++;
+        }
+
+        const header = document.createElement('div');
+        header.className = 'flex flex-wrap items-center justify-between gap-3 mb-4';
+        header.innerHTML = `
+          <div class="flex items-center gap-3.5">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-white/80 p-1 border-2 border-white shadow-md animate-float">
+              ${LEVEL_SVG[level.key]}
+            </div>
+            <div>
+              <div class="font-heading font-bold text-lg sm:text-xl ${level.titleCls}">
+                ${level.icon} ระดับ${level.name} (ชุดที่ ${level.range[0] + 1}–${level.range[1] + 1})
+              </div>
+              <div class="text-xs sm:text-sm text-slate-600 font-ui mt-0.5">${level.desc}</div>
+            </div>
+          </div>
+          <span class="font-heading font-bold text-xs sm:text-sm px-3.5 py-1.5 rounded-full border-2 ${level.pillCls} shadow-sm">
+            ผ่านแล้ว ${levelDone} / 5 ชุด
+          </span>
+        `;
+        section.appendChild(header);
+
+        const rowGrid = document.createElement('div');
+        rowGrid.className = 'grid grid-cols-2 sm:grid-cols-5 gap-2.5';
+
+        for (let idx = level.range[0]; idx <= level.range[1]; idx++) {
+          const ws = RT_WORD_SETS[idx];
+          const best = wordSetProgress[String(idx)];
+          const isDone = typeof best === 'number';
+          if (isDone) doneSets++;
+
+          const btn = document.createElement('button');
+          btn.className = `btn-3d rounded-2xl p-3 border-2 border-b-4 text-center flex flex-col items-center justify-between gap-1.5 shadow-sm ${
+            isDone
+              ? 'bg-emerald-50 text-emerald-900 border-emerald-400 border-b-emerald-500 hover:bg-emerald-100'
+              : level.idleBtnCls
+          }`;
+          btn.innerHTML = `
+            <div class="font-heading font-bold text-base sm:text-lg">ชุดที่ ${ws.setNum}</div>
+            <div class="text-xs font-heading font-bold px-2.5 py-0.5 rounded-full ${
+              isDone ? 'bg-emerald-200/90 text-emerald-950' : 'bg-slate-100 text-slate-600'
+            }">
+              ${isDone ? `⭐ สูงสุด ${best}/15` : '15 คำ'}
+            </div>
+          `;
+          btn.onclick = () => { playSfx('pop'); startReadAloudSet(idx); };
+          rowGrid.appendChild(btn);
+        }
+
+        section.appendChild(rowGrid);
+        grid.appendChild(section);
+      });
+
+      const pct = Math.round((doneSets / RT_WORD_SETS.length) * 100);
+      document.getElementById('wordSetsDoneBadge').textContent = `ทำแล้ว ${doneSets} / 20 ชุด`;
+      document.getElementById('homeOverallPctText').textContent = `${doneSets} / 20 ชุด (${pct}%)`;
+      document.getElementById('homeOverallBar').style.width = `${pct}%`;
+
+      const homeHero = document.getElementById('homeHeroMascot');
+      if (homeHero) {
+        let heroKey = 'sparrow';
+        if (doneSets >= 15) heroKey = 'fire_dragon';
+        else if (doneSets >= 10) heroKey = 'eagle';
+        else if (doneSets >= 5) heroKey = 'pigeon';
+        homeHero.innerHTML = LEVEL_SVG[heroKey];
+      }
+    }
+
+    // =========================================================================
+    // 5. หน้าทดสอบการอ่านออกเสียง (15 คำต่อชุด)
+    // =========================================================================
+    function startReadAloudSet(setIdx) {
+      if (!currentUser) { openLoginScreen(false); return; }
+      activeWordSetIdx = Math.max(0, Math.min(RT_WORD_SETS.length - 1, Number(setIdx) || 0));
+      aloudWordIdx = 0;
+      wordScores = new Array(WORDS_PER_SET).fill(null);
+      wordTranscripts = new Array(WORDS_PER_SET).fill('');
+
+      hideAllScreens();
+      document.getElementById('aloudScreen').classList.remove('hidden');
+      document.getElementById('examProgressWrap').classList.remove('hidden');
+
+      const ws = RT_WORD_SETS[activeWordSetIdx];
+      const lv = getLevelObj(ws.levelKey);
+
+      document.getElementById('examModeTitle').textContent = `${ws.levelIcon} ระดับ${ws.levelName} • ชุดที่ ${ws.setNum}`;
+      const pill = document.getElementById('activeLevelPill');
+      pill.className = `font-heading font-bold text-sm sm:text-base px-3.5 py-1.5 rounded-2xl border-2 ${lv.pillCls}`;
+      pill.textContent = `${ws.levelIcon} ระดับ${ws.levelName}`;
+
+      const switcher = document.getElementById('aloudSetSwitcher');
+      switcher.innerHTML = RT_WORD_SETS.map((item, i) =>
+        `<option value="${i}" ${i === activeWordSetIdx ? 'selected' : ''}>ชุดที่ ${item.setNum} (${item.levelIcon} ${item.levelName})</option>`
+      ).join('');
+
+      const mascotWrap = document.getElementById('aloudMascotWrap');
+      if (mascotWrap) {
+        mascotWrap.innerHTML = LEVEL_SVG[ws.levelKey];
+        mascotWrap.dataset.level = ws.levelKey;
+      }
+
+      renderAloudWord(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function changeWordSetFromSelect(val) {
+      const idx = parseInt(val, 10);
+      if (!isNaN(idx)) {
+        playSfx('pop');
+        startReadAloudSet(idx);
+      }
+    }
+
+    function renderAloudNav() {
+      const strip = document.getElementById('aloudNavStrip');
+      strip.innerHTML = '';
+      let scoredCount = 0;
+
+      for (let i = 0; i < WORDS_PER_SET; i++) {
+        const sc = wordScores[i];
+        if (sc !== null) scoredCount++;
+        const btn = document.createElement('button');
+        const stateCls = i === aloudWordIdx
+          ? 'nav-pill-active'
+          : (sc === 1 ? 'nav-pill-pass' : (sc === 0 ? 'nav-pill-fail' : 'nav-pill-idle'));
+        btn.className = `nav-pill w-9 h-9 rounded-xl font-heading font-bold text-sm flex items-center justify-center ${stateCls}`;
+        btn.textContent = i + 1;
+        btn.onclick = () => {
+          playSfx('next');
+          aloudWordIdx = i;
+          renderAloudWord(true);
+        };
+        strip.appendChild(btn);
+      }
+
+      document.getElementById('examProgressText').textContent = `คำที่ ${aloudWordIdx + 1} / ${WORDS_PER_SET} (ประเมินแล้ว ${scoredCount})`;
+      document.getElementById('examProgressBar').style.width = `${((aloudWordIdx + 1) / WORDS_PER_SET) * 100}%`;
+    }
+
+    function renderAloudWord(animatePop = true) {
+      stopSpeechRecognition();
+      const ws = RT_WORD_SETS[activeWordSetIdx];
+      const lv = getLevelObj(ws.levelKey);
+      const wordText = ws.words[aloudWordIdx];
+
+      const stageCard = document.getElementById('aloudStageCard');
+      stageCard.className = `bg-white/95 backdrop-blur rounded-[2rem] p-5 sm:p-7 shadow-xl border-4 ${lv.stageBorderCls} text-center transition-colors duration-300`;
+
+      const wordCardBg = document.getElementById('aloudWordCardBg');
+      wordCardBg.className = `my-5 py-6 px-4 sm:px-6 rounded-[2rem] border-2 shadow-inner relative overflow-hidden transition-all duration-300 ${lv.cardBgCls}`;
+
+      const mascotWrap = document.getElementById('aloudMascotWrap');
+      if (mascotWrap && mascotWrap.dataset.level !== ws.levelKey) {
+        mascotWrap.innerHTML = LEVEL_SVG[ws.levelKey];
+        mascotWrap.dataset.level = ws.levelKey;
+      }
+
+      document.getElementById('aloudWordBadge').textContent = `ชุดที่ ${ws.setNum} • คำที่ ${aloudWordIdx + 1} / ${WORDS_PER_SET}`;
+      const lvTag = document.getElementById('aloudWordLevelTag');
+      lvTag.className = `font-heading font-bold text-sm px-3.5 py-1 rounded-full border-2 ${lv.pillCls}`;
+      lvTag.textContent = `${ws.levelIcon} ระดับ${ws.levelName}`;
+
+      const wordEl = document.getElementById('aloudWordDisplay');
+      wordEl.textContent = wordText;
+      if (animatePop) {
+        wordEl.classList.remove('word-pop');
+        void wordEl.offsetWidth;
+        wordEl.classList.add('word-pop');
+      }
+
+      const tr = wordTranscripts[aloudWordIdx];
+      document.getElementById('aloudWordTranscript').innerHTML = tr
+        ? `🎙️ ระบบได้ยินว่า: <strong class="text-sky-800">“${tr}”</strong>`
+        : '<span class="text-slate-500">กดปุ่มไมโครโฟนเพื่ออ่าน หรือให้ครู/ผู้ปกครองประเมินด้านล่าง</span>';
+
+      const sc = wordScores[aloudWordIdx];
+      document.getElementById('btnWordScore1').className = `btn-3d py-3.5 px-4 rounded-2xl font-heading font-bold text-lg border-2 border-b-4 ${sc === 1 ? 'bg-emerald-500 text-white border-emerald-600 border-b-emerald-700 shadow-md' : 'bg-white border-emerald-300 text-emerald-800 hover:bg-emerald-50'}`;
+      document.getElementById('btnWordScore0').className = `btn-3d py-3.5 px-4 rounded-2xl font-heading font-bold text-lg border-2 border-b-4 ${sc === 0 ? 'bg-rose-500 text-white border-rose-600 border-b-rose-700 shadow-md' : 'bg-white border-rose-300 text-rose-800 hover:bg-rose-50'}`;
+
+      document.getElementById('prevAloudWordBtn').disabled = aloudWordIdx === 0;
+      const isLast = aloudWordIdx === WORDS_PER_SET - 1;
+      document.getElementById('nextAloudWordBtn').classList.toggle('hidden', isLast);
+      document.getElementById('finishAloudBtn').classList.toggle('hidden', !isLast);
+
+      renderAloudNav();
+    }
+
+    function setWordScore(val) {
+      wordScores[aloudWordIdx] = val;
+      playSfx(val === 1 ? 'pass' : 'fail');
+      renderAloudWord(false);
+      if (val === 1) triggerMascotCheer();
+    }
+
+    function moveAloudWord(delta) {
+      const next = aloudWordIdx + delta;
+      if (next >= 0 && next < WORDS_PER_SET) {
+        playSfx('next');
+        aloudWordIdx = next;
+        renderAloudWord(true);
+      }
+    }
+
+    function attemptFinishSet() {
+      const unscored = [];
+      for (let i = 0; i < WORDS_PER_SET; i++) {
+        if (wordScores[i] === null) unscored.push(i + 1);
+      }
+      if (unscored.length > 0) {
+        document.getElementById('submitModalMsg').innerHTML =
+          `ยังมีอีก <strong>${unscored.length} คำ</strong> ที่ยังไม่ได้ให้คะแนน ได้แก่ คำที่ <strong>${unscored.join(', ')}</strong><br>ต้องการกลับไปอ่านให้ครบ หรือส่งผลคะแนนเลย?`;
+        document.getElementById('submitModal').classList.remove('hidden');
+      } else {
+        confirmFinishSet();
+      }
+    }
+
+    function goToFirstUnscored() {
+      document.getElementById('submitModal').classList.add('hidden');
+      const idx = wordScores.findIndex(v => v === null);
+      if (idx !== -1) {
+        aloudWordIdx = idx;
+        renderAloudWord(true);
+      }
+    }
+
+    function confirmFinishSet() {
+      document.getElementById('submitModal').classList.add('hidden');
+      const ws = RT_WORD_SETS[activeWordSetIdx];
+      const finalScores = wordScores.map(v => (v === 1 ? 1 : 0));
+      const score = finalScores.reduce((a, b) => a + b, 0);
+      const pct = Math.round((score / WORDS_PER_SET) * 100);
+
+      const prevBest = wordSetProgress[String(activeWordSetIdx)];
+      if (typeof prevBest !== 'number' || score > prevBest) {
+        wordSetProgress[String(activeWordSetIdx)] = score;
+        saveWordSetProgress();
+      }
+
+      const now = new Date();
+      const record = {
+        id: 'rtw_' + Date.now(),
+        studentName: currentUser.name,
+        studentGender: currentUser.gender,
+        setIdx: activeWordSetIdx,
+        setNum: ws.setNum,
+        levelKey: ws.levelKey,
+        levelIcon: ws.levelIcon,
+        levelName: ws.levelName,
+        dateStr: now.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }),
+        timeStr: now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }),
+        score,
+        maxScore: WORDS_PER_SET,
+        pct,
+        syncedToSheet: false,
+        items: ws.words.map((w, i) => ({
+          num: i + 1,
+          word: w,
+          passed: finalScores[i] === 1
+        }))
+      };
+
+      rtHistory.unshift(record);
+      if (rtHistory.length > 100) rtHistory = rtHistory.slice(0, 100);
+      saveHistory();
+
+      openSummaryScreen(record, true);
+    }
+
+    // =========================================================================
+    // 6. หน้าสรุปผลคะแนน (Summary & Review)
+    // =========================================================================
+    function getQualityInfo(pct) {
+      if (pct >= 80) return { label: 'ดีมาก 🌟', short: 'ดีมาก', cls: 'bg-emerald-100 text-emerald-800 border-emerald-300' };
+      if (pct >= 70) return { label: 'ดี 👍', short: 'ดี', cls: 'bg-sky-100 text-sky-800 border-sky-300' };
+      if (pct >= 50) return { label: 'พอใช้ 💪', short: 'พอใช้', cls: 'bg-amber-100 text-amber-900 border-amber-300' };
+      return { label: 'ปรับปรุง 🌱', short: 'ปรับปรุง', cls: 'bg-rose-100 text-rose-800 border-rose-300' };
+    }
+
+    function openSummaryScreen(record, shouldAutoSync = false) {
+      activeSummaryRecord = record;
+      activeWordSetIdx = record.setIdx;
+
+      hideAllScreens();
+      document.getElementById('summaryScreen').classList.remove('hidden');
+
+      // จัดการแถบสถานะ Google Sheets
+      const banner = document.getElementById('sheetSyncBanner');
+      if (shouldAutoSync) {
+        syncRecordToGoogleSheet(record);
+      } else if (record.syncedToSheet && getSheetUrl()) {
+        banner.classList.remove('hidden');
+        banner.className = 'no-print mb-5 rounded-2xl px-4 py-3 border-2 bg-emerald-50 border-emerald-300 text-emerald-900 flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base font-heading font-bold';
+        banner.innerHTML = '<span>✅ รายการนี้ถูกส่งเข้า Google Sheets ของคุณครูแล้ว</span>';
+      } else if (getSheetUrl()) {
+        banner.classList.remove('hidden');
+        banner.className = 'no-print mb-5 rounded-2xl px-4 py-3 border-2 bg-slate-50 border-slate-200 text-slate-700 flex flex-wrap items-center justify-between gap-2 text-sm sm:text-base font-heading font-bold';
+        banner.innerHTML = `
+          <span>☁️ รายการนี้ยังไม่ได้ส่งเข้า Google Sheets</span>
+          <button onclick="retrySyncCurrentRecord()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded-xl text-sm border-b-2 border-emerald-700">ส่งเข้า Google Sheets ตอนนี้</button>
+        `;
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      const sumMascot = document.getElementById('sumMascotWrap');
+      if (sumMascot) sumMascot.innerHTML = LEVEL_SVG[record.levelKey] || LEVEL_SVG.sparrow;
+
+      if (record.pct >= 60) {
+        playSfx('victory');
+        launchConfetti();
+      } else {
+        playSfx('pop');
+      }
+
+      const qInfo = getQualityInfo(record.pct);
+      const failCount = record.maxScore - record.score;
+
+      document.getElementById('sumHeadingTitle').textContent =
+        `${record.levelIcon} ระดับ${record.levelName} — ชุดที่ ${record.setNum}`;
+
+      document.getElementById('sumStudentMeta').innerHTML = `
+        <span class="font-heading font-bold text-slate-800">${getGenderIcon(record.studentGender)} ชื่อ: ${record.studentName} (${getGenderLabel(record.studentGender)})</span>
+        <span>•</span>
+        <span>📅 ${record.dateStr} เวลา ${record.timeStr} น.</span>
+      `;
+
+      document.getElementById('sumQualityBadge').innerHTML = `
+        <div class="inline-flex flex-col items-center px-5 py-2.5 rounded-2xl border-2 ${qInfo.cls}">
+          <span class="text-xs font-heading font-bold opacity-80">ระดับคุณภาพ</span>
+          <span class="font-heading font-bold text-xl">${qInfo.label}</span>
+        </div>
+      `;
+
+      document.getElementById('sumTotalScore').textContent = `${record.score} / ${record.maxScore}`;
+      document.getElementById('sumTotalPct').textContent = `ร้อยละ ${record.pct}%`;
+      document.getElementById('sumPassCount').textContent = `${record.score} คำ`;
+      document.getElementById('sumFailCount').textContent = `${failCount} คำ`;
+
+      const missedWords = record.items.filter(it => !it.passed).map(it => it.word);
+      let advice = '';
+      if (record.pct >= 80) {
+        advice = `เก่งมากเลย ${record.studentName}! หนูอ่านคำศัพท์ระดับ${record.levelName} (ชุดที่ ${record.setNum}) ได้คล่องมาก พร้อมลุยชุดต่อไปได้เลยจ้า`;
+      } else if (record.pct >= 60) {
+        advice = `ทำได้ดีมาก ${record.studentName}! ลองกดปุ่ม 🔊 ฟังเสียงคำที่ยังอ่านไม่คล่องด้านล่าง แล้วลองฝึกอ่านชุดนี้อีกครั้งนะ`;
+      } else {
+        advice = `สู้ๆ นะ ${record.studentName}! ค่อยๆ ฝึกสะกดและกดปุ่ม 🔊 ฟังเสียงอ่านทีละคำพร้อมผู้ปกครอง แล้วมาลองฝึกใหม่อีกครั้งจะเก่งขึ้นแน่นอน`;
+      }
+
+      document.getElementById('rtAnalysisText').innerHTML = `
+        <p><strong>📊 ผลการประเมิน:</strong> อ่านถูกต้อง <strong>${record.score} คำ</strong> จากทั้งหมด ${record.maxScore} คำ (ร้อยละ ${record.pct}%)</p>
+        <p><strong>📌 คำที่ควรฝึกอ่านเพิ่ม:</strong> ${missedWords.length > 0 ? missedWords.join(' , ') : 'ไม่มีเลย! อ่านถูกครบทั้ง 15 คำ ยอดเยี่ยมมาก 🌟'}</p>
+        <p><strong>💡 คำแนะนำ:</strong> ${advice}</p>
+      `;
+
+      const revBox = document.getElementById('rtReviewContainer');
+      revBox.innerHTML = record.items.map(it => {
+        const pill = it.passed
+          ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+          : 'bg-rose-50 border-rose-300 text-rose-950';
+        const statusIcon = it.passed ? '✅' : '❌';
+        return `
+          <div class="rounded-2xl p-3.5 border-2 ${pill} flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-heading font-bold opacity-70">${it.num}.</span>
+              <span class="font-sarabun font-bold text-2xl">${it.word}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-base">${statusIcon}</span>
+              <button onclick="speakInstruction('${it.word}')" class="no-print bg-white hover:bg-sky-50 border border-slate-200 px-2.5 py-1 rounded-xl text-base shadow-sm" title="ฟังเสียงอ่าน">🔊</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const nextBtn = document.getElementById('nextSetSummaryBtn');
+      if (record.setIdx < RT_WORD_SETS.length - 1) {
+        nextBtn.classList.remove('hidden');
+        const nextWs = RT_WORD_SETS[record.setIdx + 1];
+        nextBtn.textContent = `🚀 ทำชุดที่ ${nextWs.setNum} (${nextWs.levelIcon} ${nextWs.levelName})`;
+      } else {
+        nextBtn.classList.add('hidden');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startNextWordSet() {
+      if (activeWordSetIdx < RT_WORD_SETS.length - 1) {
+        startReadAloudSet(activeWordSetIdx + 1);
+      }
+    }
+
+    function retryCurrentSet() {
+      startReadAloudSet(activeWordSetIdx);
+    }
+
+    // =========================================================================
+    // 7. ดาวน์โหลดผลคะแนน (.CSV และ .PNG) & หน้าประวัติ
+    // =========================================================================
+    function downloadRTCSV() {
+      if (!activeSummaryRecord) return;
+      const r = activeSummaryRecord;
+      const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
+      const rows = [
+        ['รายงานผลการทดสอบการอ่านออกเสียง ป.1'],
+        ['ชื่อนักเรียน', r.studentName],
+        ['เพศ', getGenderLabel(r.studentGender)],
+        ['ระดับความยาก', r.levelName],
+        ['ชุดแบบทดสอบ', `ชุดที่ ${r.setNum}`],
+        ['วันที่และเวลา', `${r.dateStr} ${r.timeStr} น.`],
+        ['คะแนนที่ได้', `${r.score} / ${r.maxScore} คะแนน`],
+        ['คิดเป็นร้อยละ', `${r.pct}%`],
+        ['ระดับคุณภาพ', getQualityInfo(r.pct).short],
+        [],
+        ['ลำดับที่', 'คำศัพท์', 'ผลการอ่านออกเสียง', 'คะแนน'],
+        ...r.items.map(it => [it.num, it.word, it.passed ? 'อ่านได้' : 'อ่านไม่ได้', it.passed ? 1 : 0])
+      ];
+      const csv = '\uFEFF' + rows.map(row => row.map(esc).join(',')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ผลอ่านออกเสียง_ป1_ชุด${r.setNum}_${r.levelName}_${r.studentName}.csv`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('ดาวน์โหลดไฟล์ .CSV เรียบร้อยแล้ว 📊');
+    }
+
+    function downloadRTPNG() {
+      if (!activeSummaryRecord) return;
+      const r = activeSummaryRecord;
+      const lv = getLevelObj(r.levelKey);
+      const qInfo = getQualityInfo(r.pct);
+
+      const canvas = document.createElement('canvas');
+      const W = 900, H = 960;
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = '#FFFDF5';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#FFFFFF';
+      roundRect(ctx, 30, 30, W - 60, H - 60, 28, true, false);
+      ctx.strokeStyle = '#FDE68A';
+      ctx.lineWidth = 3;
+      roundRect(ctx, 30, 30, W - 60, H - 60, 28, false, true);
+
+      ctx.fillStyle = lv.bannerHex;
+      roundRect(ctx, 30, 30, W - 60, 140, 28, true, false);
+      ctx.fillRect(30, 135, W - 60, 35);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 28px Mali, Prompt, sans-serif';
+      ctx.fillText(`ใบสรุปผลการทดสอบการอ่านออกเสียง ป.1`, 65, 84);
+      ctx.font = 'bold 21px Mali, Prompt, sans-serif';
+      ctx.fillText(`${r.levelIcon} ระดับ${r.levelName} — ชุดที่ ${r.setNum} (15 คำ)   |   วันที่ ${r.dateStr}`, 65, 124);
+
+      ctx.fillStyle = '#FFF7ED';
+      roundRect(ctx, 60, 195, W - 120, 62, 18, true, false);
+      ctx.fillStyle = '#0F172A';
+      ctx.font = 'bold 22px Mali, Prompt, sans-serif';
+      ctx.fillText(`ผู้เข้าทดสอบ: ${getGenderIcon(r.studentGender)} ${r.studentName} (${getGenderLabel(r.studentGender)})   |   ระดับคุณภาพ: ${qInfo.short}`, 82, 234);
+
+      const boxes = [
+        { t: 'คะแนนที่ได้', v: `${r.score} / ${r.maxScore}`, bg: '#DCFCE7', fg: '#15803D' },
+        { t: 'คิดเป็นร้อยละ', v: `${r.pct}%`, bg: '#E0F2FE', fg: '#0369A1' },
+        { t: 'คำที่ควรฝึกเพิ่ม', v: `${r.maxScore - r.score} คำ`, bg: '#FFE4E6', fg: '#BE123C' }
+      ];
+      const bw = (W - 120 - 30) / 3;
+      boxes.forEach((b, i) => {
+        const x = 60 + i * (bw + 15);
+        ctx.fillStyle = b.bg;
+        roundRect(ctx, x, 278, bw, 100, 18, true, false);
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#475569';
+        ctx.font = 'bold 16px Mali, Prompt, sans-serif';
+        ctx.fillText(b.t, x + bw / 2, 312);
+        ctx.fillStyle = b.fg;
+        ctx.font = 'bold 30px Mali, Prompt, sans-serif';
+        ctx.fillText(b.v, x + bw / 2, 356);
+      });
+      ctx.textAlign = 'left';
+
+      ctx.fillStyle = '#0F172A';
+      ctx.font = 'bold 20px Mali, Prompt, sans-serif';
+      ctx.fillText('รายละเอียดผลการอ่านทั้ง 15 คำ', 60, 420);
+
+      const colW = (W - 120 - 24) / 3;
+      const startY = 440;
+      r.items.forEach((it, idx) => {
+        const col = idx % 3;
+        const row = Math.floor(idx / 3);
+        const x = 60 + col * (colW + 12);
+        const y = startY + row * 82;
+
+        ctx.fillStyle = it.passed ? '#ECFDF5' : '#FFF1F2';
+        roundRect(ctx, x, y, colW, 68, 14, true, false);
+        ctx.strokeStyle = it.passed ? '#6EE7B7' : '#FDA4AF';
+        ctx.lineWidth = 2;
+        roundRect(ctx, x, y, colW, 68, 14, false, true);
+
+        ctx.fillStyle = '#0F172A';
+        ctx.font = 'bold 22px Sarabun, sans-serif';
+        ctx.fillText(`${it.num}. ${it.word}`, x + 16, y + 42);
+
+        ctx.textAlign = 'right';
+        ctx.font = 'bold 20px Mali, Prompt, sans-serif';
+        ctx.fillStyle = it.passed ? '#059669' : '#E11D48';
+        ctx.fillText(it.passed ? '✓ ผ่าน' : '✗ ฝึกเพิ่ม', x + colW - 14, y + 42);
+        ctx.textAlign = 'left';
+      });
+
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '400 14px Sarabun, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ระบบทดสอบการอ่านออกเสียง ป.1 — 20 ชุด 4 ระดับความยาก', W / 2, H - 52);
+
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ใบสรุปผลอ่านออกเสียง_ป1_ชุด${r.setNum}_${r.levelName}_${r.studentName}.png`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      showToast('ดาวน์โหลดภาพ .PNG เรียบร้อยแล้ว 🖼️');
+    }
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    // --- หน้าประวัติ ---
+    function openHistoryScreen() {
+      hideAllScreens();
+      document.getElementById('historyScreen').classList.remove('hidden');
+      toggleClearHistConfirm(false);
+      renderHistoryList();
+    }
+
+    function toggleClearHistConfirm(show) {
+      document.getElementById('clearHistConfirmBox').classList.toggle('hidden', !(show && rtHistory.length > 0));
+    }
+
+    function confirmClearHistory() {
+      rtHistory = [];
+      saveHistory();
+      toggleClearHistConfirm(false);
+      renderHistoryList();
+      showToast('ล้างประวัติเรียบร้อยแล้ว');
+    }
+
+    function renderHistoryList() {
+      const list = document.getElementById('historyList');
+      document.getElementById('historyCountSub').textContent = `บันทึกไว้ทั้งหมด ${rtHistory.length} ครั้ง`;
+      document.getElementById('clearHistBtn').classList.toggle('hidden', rtHistory.length === 0);
+
+      if (rtHistory.length === 0) {
+        list.innerHTML = `<div class="text-center py-10 text-slate-500 font-heading font-bold">ยังไม่มีประวัติการฝึกอ่านออกเสียง</div>`;
+        return;
+      }
+      list.innerHTML = rtHistory.map((r, idx) => {
+        const q = getQualityInfo(r.pct);
+        const syncIcon = r.syncedToSheet ? '<span class="text-xs text-emerald-700 font-ui ml-1" title="ส่งเข้า Google Sheets แล้ว">☁️✓</span>' : '';
+        return `
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="font-heading font-bold text-slate-800">
+                ${getGenderIcon(r.studentGender)} ${r.studentName} • <span class="text-orange-700">${r.levelIcon} ระดับ${r.levelName} ชุดที่ ${r.setNum}</span>${syncIcon}
+              </div>
+              <div class="text-xs sm:text-sm text-slate-500">📅 ${r.dateStr} เวลา ${r.timeStr} น.</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="font-heading font-bold text-lg text-slate-800">${r.score}/${r.maxScore} คำ (${r.pct}%)</div>
+                <span class="inline-block text-xs font-heading font-bold px-2.5 py-0.5 rounded-full border ${q.cls}">${q.label}</span>
+              </div>
+              <button onclick="viewHistoryRecord(${idx})"
+                class="btn-3d bg-white hover:bg-sky-500 hover:text-white text-sky-700 border-2 border-sky-300 border-b-4 font-heading font-bold text-sm px-3.5 py-2 rounded-2xl">
+                ดูผล
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function viewHistoryRecord(idx) {
+      if (rtHistory[idx]) openSummaryScreen(rtHistory[idx], false);
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      box.textContent = msg;
+      box.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => box.classList.add('hidden'), 2800);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hidden')) {
+        submitLogin();
+      }
+    });
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+
+    window.onload = function () {
+      initSheetUrlFromQuery();
+      updateSheetIndicatorUI();
+      updateSfxBtnUI();
+      updateHeaderUI();
+      if (currentUser) goHome();
+      else openLoginScreen(false);
+    };
+  </script>
+</body>
+</html>
